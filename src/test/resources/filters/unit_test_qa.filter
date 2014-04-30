@@ -1,0 +1,14 @@
+deploy.script.dir=/ci/unpacked
+environment=qa
+install.dir=/etc/qa/myapp
+
+pretty.print.xml=false
+
+orm.show.sql=false
+
+db.driver.name=HSQL
+db.host=somehost
+db.port=1234
+db.name=qa_db
+db.username=qa_db
+db.password=qapwd

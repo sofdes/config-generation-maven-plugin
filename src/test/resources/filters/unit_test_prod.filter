@@ -1,0 +1,14 @@
+deploy.script.dir=/ci/unpacked
+environment=prod
+install.dir=/etc/myapp
+
+pretty.print.xml=false
+
+orm.show.sql=false
+
+db.driver.name=HSQL
+db.host=somehost
+db.port=1234
+db.name=live_db
+db.username=prod_db
+db.password=properpwd

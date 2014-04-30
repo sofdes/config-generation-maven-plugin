@@ -1,0 +1,14 @@
+deploy.script.dir=/ci/unpacked
+environment=personal/foo
+install.dir=C:/Users/foo/devApps/myapp
+
+pretty.print.xml=true
+
+orm.show.sql=true
+
+db.driver.name=HSQL
+db.host=somehost
+db.port=1234
+db.name=foo_test_db
+db.username=foo
+db.password=pwd123

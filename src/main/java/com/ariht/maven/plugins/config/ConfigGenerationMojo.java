@@ -31,7 +31,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -63,19 +62,29 @@ public class ConfigGenerationMojo extends AbstractMojo {
      * For properties substituted from every filter, create config based on each template.
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
+        logConfigurationParameters();
+        clearTargetDirectory();
         try {
-            logConfigurationParameters();
-            deleteOutputDirectory();
-            processTemplatesAndGenerateConfig();
+            final DirectoryReader directoryReader = new DirectoryReader(getLog(), PATH_SEPARATOR);
+            processTemplatesAndGenerateConfig(directoryReader);
         } catch (Exception e) {
+            getLog().error("Error generating config: " + String.valueOf(e.getMessage()));
             throw new MojoFailureException(e.getMessage(), e);
         }
     }
 
-    private void processTemplatesAndGenerateConfig() throws Exception {
-        final List<FileInfo> filters = new DirectoryReader(getLog(), PATH_SEPARATOR, filtersToIgnore).readFiles(filtersBasePath);
-        final List<FileInfo> templates = new DirectoryReader(getLog(), PATH_SEPARATOR, templatesToIgnore).readFiles(templatesBasePath);
-        getLog().debug("Outputs will go into : " + outputBasePath);
+    private void clearTargetDirectory() throws MojoFailureException {
+        try {
+            deleteOutputDirectory();
+        } catch (Exception e) {
+            getLog().error("Error while clearing config generation output directory: " + String.valueOf(e.getMessage()));
+            throw new MojoFailureException(e.getMessage(), e);
+        }
+    }
+
+    private void processTemplatesAndGenerateConfig(final DirectoryReader directoryReader) throws Exception {
+        final List<FileInfo> filters = directoryReader.readFiles(filtersBasePath, filtersToIgnore);
+        final List<FileInfo> templates = directoryReader.readFiles(templatesBasePath, templatesToIgnore);
         for (final FileInfo filter : filters) {
             getLog().info("");
             for (final FileInfo template : templates) {
@@ -167,9 +176,9 @@ public class ConfigGenerationMojo extends AbstractMojo {
             getLog().info("Using file encoding '" + encoding + "' while generating config.");
         }
         if (logOutput) {
-            getLog().info(MessageFormat.format("templatesBasePath : {0}", FilenameUtils.separatorsToSystem(templatesBasePath)));
-            getLog().info(MessageFormat.format("filtersBasePath   : {0}", FilenameUtils.separatorsToSystem(filtersBasePath)));
-            getLog().info(MessageFormat.format("outputBasePath    : {0}", FilenameUtils.separatorsToSystem(outputBasePath)));
+            getLog().info("templatesBasePath : " + FilenameUtils.separatorsToSystem(templatesBasePath));
+            getLog().info("filtersBasePath   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
+            getLog().info("outputBasePath    : " + FilenameUtils.separatorsToSystem(outputBasePath));
         }
     }
 }

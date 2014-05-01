@@ -40,33 +40,24 @@ public class DirectoryReader {
 
     private final Log log;
     private final String pathSeparator;
-    private final List<File> filesToIgnore;
 
-    private static final List<File> EMPTY_FILE_LIST = Collections.unmodifiableList(new LinkedList<File>());
+    private final List<File> EMPTY_FILE_LIST = Collections.unmodifiableList(new LinkedList<File>());
 
-    public DirectoryReader(final Log log, final String pathSeparator, final List<String> filenamesToIgnore) {
+    public DirectoryReader(final Log log, final String pathSeparator) {
         this.log = log;
         this.pathSeparator = pathSeparator;
-        this.filesToIgnore = processFilesToIgnore(filenamesToIgnore);
-    }
-
-    private boolean isFileToIgnore(File file) {
-        for (File f : filesToIgnore) {
-            if (StringUtils.startsWith(file.getAbsolutePath(), f.getAbsolutePath())) {
-                log.debug("Matched prefix so will ignore: \n" + file.getAbsolutePath() + "\n" + f.getAbsolutePath());
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
      * Read directory creating FileInfo for each file found, include sub-directories.
      */
-    public List<FileInfo> readFiles(final String path) throws IOException, InstantiationException, IllegalAccessException {
+    public List<FileInfo> readFiles(final String path, final List<String> filesAndDirectoriesToIgnore) throws IOException, InstantiationException, IllegalAccessException {
+        final List<File> filesToIgnore = processFilesToIgnore(filesAndDirectoriesToIgnore);
+
         log.debug("Scanning directory: " + path);
+
         final File directory = new File(path);
-        final Collection<File> allFiles = getAllFiles(directory);
+        final Collection<File> allFiles = getAllFiles(directory, filesToIgnore);
         if (allFiles.isEmpty()) {
             log.warn("No files found in directory: " + path);
         }
@@ -83,8 +74,12 @@ public class DirectoryReader {
         return allFilesInfo;
     }
 
+    /**
+     * Return collection of all files in directory and sub-directories, ignoring any that
+     * have been specifically excluded in plugin configuration.
+     */
     @SuppressWarnings("rawtypes")
-    private Collection<File> getAllFiles(final File directory) {
+    private Collection<File> getAllFiles(final File directory, final List<File> filesToIgnore) {
         if (!directory.exists()) {
             log.warn("Directory does not exist: " + directory.getPath());
             return EMPTY_FILE_LIST;
@@ -94,7 +89,7 @@ public class DirectoryReader {
         for (final Object o : allFiles) {
             if (o != null && o instanceof File) {
                 final File file = (File) o;
-                if (isFileToIgnore(file)) {
+                if (isFileToIgnore(file, filesToIgnore)) {
                     log.info("Ignoring: " + file.toString());
                 } else {
                     log.debug("Adding file: " + file.toString());
@@ -107,6 +102,23 @@ public class DirectoryReader {
         return files;
     }
 
+    /**
+     * Has a directory or specific file been excluded from config generation?
+     */
+    private boolean isFileToIgnore(final File file, final List<File> filesToIgnore) {
+        for (File f : filesToIgnore) {
+            if (StringUtils.startsWith(file.getAbsolutePath(), f.getAbsolutePath())) {
+                log.debug("Matched prefix so will ignore: \n" + file.getAbsolutePath() + "\n" + f.getAbsolutePath());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Directories and/or specific files you do not wish to include in config generation
+     * are processes from Strings into File instances.
+     */
     private List<File> processFilesToIgnore(final List<String> filesToIgnore) {
         if (filesToIgnore == null || filesToIgnore.isEmpty()) {
             return EMPTY_FILE_LIST;

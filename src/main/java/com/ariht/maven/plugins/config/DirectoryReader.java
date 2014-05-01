@@ -16,14 +16,6 @@
 
 package com.ariht.maven.plugins.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -31,6 +23,14 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.plugin.logging.Log;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Reads directory recursively to put collated file information such as
@@ -41,6 +41,8 @@ public class DirectoryReader {
     private final Log log;
     private final String pathSeparator;
     private final List<File> filesToIgnore;
+
+    private static final List<File> EMPTY_FILE_LIST = Collections.unmodifiableList(new LinkedList<File>());
 
     public DirectoryReader(final Log log, final String pathSeparator, final List<String> filenamesToIgnore) {
         this.log = log;
@@ -53,8 +55,6 @@ public class DirectoryReader {
             if (StringUtils.startsWith(file.getAbsolutePath(), f.getAbsolutePath())) {
                 log.debug("Matched prefix so will ignore: \n" + file.getAbsolutePath() + "\n" + f.getAbsolutePath());
                 return true;
-            } else {
-                log.debug("Not same: \n" + file.getAbsolutePath() + "\n" + f.getAbsolutePath());
             }
         }
         return false;
@@ -85,17 +85,14 @@ public class DirectoryReader {
 
     @SuppressWarnings("rawtypes")
     private Collection<File> getAllFiles(final File directory) {
-        final Collection<File> files = Lists.newLinkedList();
         if (!directory.exists()) {
             log.warn("Directory does not exist: " + directory.getPath());
-            return files;
+            return EMPTY_FILE_LIST;
         }
         final Collection allFiles = FileUtils.listFiles(directory, TrueFileFilter.TRUE, DirectoryFileFilter.DIRECTORY);
+        final Collection<File> files = new ArrayList<File>(allFiles.size());
         for (final Object o : allFiles) {
-            if (o == null) {
-                continue;
-            }
-            if (o instanceof File) {
+            if (o != null && o instanceof File) {
                 final File file = (File) o;
                 if (isFileToIgnore(file)) {
                     log.info("Ignoring: " + file.toString());
@@ -111,20 +108,20 @@ public class DirectoryReader {
     }
 
     private List<File> processFilesToIgnore(final List<String> filesToIgnore) {
-        final List<File> templatesIgnored = Lists.newLinkedList();
         if (filesToIgnore == null || filesToIgnore.isEmpty()) {
-            return templatesIgnored;
+            return EMPTY_FILE_LIST;
         }
-        for (String templateToIgnore : Sets.newTreeSet(filesToIgnore)) {
-            if (StringUtils.isNotBlank(templateToIgnore)) {
-                templateToIgnore = FilenameUtils.separatorsToSystem(FilenameUtils.normalize(templateToIgnore));
-                final File file = new File(templateToIgnore);
+        final List<File> filesIgnored = new ArrayList<File>(filesToIgnore.size());
+        for (String fileToIgnore : new LinkedHashSet<String>(filesToIgnore)) {
+            if (StringUtils.isNotBlank(fileToIgnore)) {
+                fileToIgnore = FilenameUtils.separatorsToSystem(FilenameUtils.normalize(fileToIgnore.trim()));
+                final File file = new File(fileToIgnore);
                 if (file.exists()) {
                     log.debug("Adding ignore for file: " + file.getAbsolutePath());
-                    templatesIgnored.add(file);
+                    filesIgnored.add(file);
                 }
             }
         }
-        return templatesIgnored;
+        return filesIgnored;
     }
 }

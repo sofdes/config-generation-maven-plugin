@@ -16,12 +16,6 @@
 
 package com.ariht.maven.plugins.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -35,6 +29,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Generates config and scripts for multiple target environments using
@@ -173,5 +172,4 @@ public class ConfigGenerationMojo extends AbstractMojo {
             getLog().info(MessageFormat.format("outputBasePath    : {0}", FilenameUtils.separatorsToSystem(outputBasePath)));
         }
     }
-
 }

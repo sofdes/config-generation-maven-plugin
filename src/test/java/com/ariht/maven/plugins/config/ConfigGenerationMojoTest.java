@@ -16,16 +16,15 @@
 
 package com.ariht.maven.plugins.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Not so much a unit test as an example showing filters and templates being processed together.
@@ -39,6 +38,7 @@ public class ConfigGenerationMojoTest {
     @Test
     public void testReadingDirectory() throws MojoExecutionException, MojoFailureException, IOException {
         final ConfigGenerationMojo configGenerationMojo = new ConfigGenerationMojo();
+
         configGenerationMojo.templatesBasePath = getAbsolutePath("templates");
         configGenerationMojo.filtersBasePath = getAbsolutePath("filters");
         configGenerationMojo.outputBasePath = getAbsolutePath("../generated-unit-tests-config");
@@ -46,6 +46,7 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.logOutput = true;
         configGenerationMojo.filtersToIgnore = Lists.newArrayList(getAbsolutePath("filters/personal"));
         configGenerationMojo.templatesToIgnore = Lists.newLinkedList();
+
         configGenerationMojo.execute();
     }
 
@@ -61,5 +62,4 @@ public class ConfigGenerationMojoTest {
         }
         return normalizedAbsolutePath;
     }
-
 }

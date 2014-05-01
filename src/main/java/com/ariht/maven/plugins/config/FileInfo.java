@@ -16,10 +16,10 @@
 
 package com.ariht.maven.plugins.config;
 
-import java.io.File;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import java.io.File;
 
 /**
  * Container to information about a file so that the processors can input and output
@@ -56,5 +56,4 @@ public class FileInfo {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
-
 }

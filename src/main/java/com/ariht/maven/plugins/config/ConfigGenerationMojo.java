@@ -51,21 +51,20 @@ public class ConfigGenerationMojo extends AbstractMojo {
     protected String outputBasePath;
     @Parameter (defaultValue = "true")
     protected boolean logOutput;
+    @Parameter (defaultValue = "/")
+    protected String pathSeparator;
     @Parameter
     protected List<String> templatesToIgnore;
     @Parameter
     protected List<String> filtersToIgnore;
-
-    private static final String PATH_SEPARATOR = "/";
-
     /**
      * For properties substituted from every filter, create config based on each template.
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
         logConfigurationParameters();
         clearTargetDirectory();
+        final DirectoryReader directoryReader = new DirectoryReader(getLog(), pathSeparator);
         try {
-            final DirectoryReader directoryReader = new DirectoryReader(getLog(), PATH_SEPARATOR);
             processTemplatesAndGenerateConfig(directoryReader);
         } catch (Exception e) {
             getLog().error("Error generating config: " + String.valueOf(e.getMessage()));
@@ -73,15 +72,9 @@ public class ConfigGenerationMojo extends AbstractMojo {
         }
     }
 
-    private void clearTargetDirectory() throws MojoFailureException {
-        try {
-            deleteOutputDirectory();
-        } catch (Exception e) {
-            getLog().error("Error while clearing config generation output directory: " + String.valueOf(e.getMessage()));
-            throw new MojoFailureException(e.getMessage(), e);
-        }
-    }
-
+    /**
+     * Merge templates with filters to generate config, scripts anf property files.
+     */
     private void processTemplatesAndGenerateConfig(final DirectoryReader directoryReader) throws Exception {
         final List<FileInfo> filters = directoryReader.readFiles(filtersBasePath, filtersToIgnore);
         final List<FileInfo> templates = directoryReader.readFiles(templatesBasePath, templatesToIgnore);
@@ -152,18 +145,27 @@ public class ConfigGenerationMojo extends AbstractMojo {
      * base path so only have the filter (i.e. the environment they are intended for).
      */
     private String getOutputPath(final FileInfo template, final FileInfo filter, final String outputBasePath) {
-        final String outputPath = outputBasePath + PATH_SEPARATOR
+        final String outputPath = outputBasePath + pathSeparator
                                 + filter.getRelativeSubDirectory()
-                                + filter.getNameWithoutExtension() + PATH_SEPARATOR
-                                + template.getRelativeSubDirectory() + PATH_SEPARATOR;
+                                + filter.getNameWithoutExtension() + pathSeparator
+                                + template.getRelativeSubDirectory() + pathSeparator;
         return FilenameUtils.normalize(outputPath);
     }
 
-    private void deleteOutputDirectory() throws IOException {
+    /**
+     * Clear contents of config generation build target/output directory ready for new files.
+     */
+    private void clearTargetDirectory() throws MojoFailureException {
         final File outputDir = new File(outputBasePath);
         if (outputDir.exists()) {
             getLog().debug("Deleting : " + outputDir);
-            FileUtils.forceDelete(outputDir);
+            try {
+                FileUtils.forceDelete(outputDir);
+            } catch(IOException e) {
+                getLog().error("Error while clearing config generation output directory: ["
+                        + outputDir + "], error was: " + String.valueOf(e.getMessage()));
+                throw new MojoFailureException(e.getMessage(), e);
+            }
         }
     }
 

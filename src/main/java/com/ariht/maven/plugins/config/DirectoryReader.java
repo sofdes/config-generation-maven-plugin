@@ -33,8 +33,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Reads directory recursively to put collated file information such as
- * relative paths, name (without extension) and a reference to the {@link File} itself.
+ * Reads directory recursively to create collated file information containing relative
+ * paths, name (without extension) and a reference to the {@link File} itself.
  */
 public class DirectoryReader {
 
@@ -90,7 +90,7 @@ public class DirectoryReader {
             if (o != null && o instanceof File) {
                 final File file = (File) o;
                 if (isFileToIgnore(file, filesToIgnore)) {
-                    log.info("Ignoring: " + file.toString());
+                    log.debug("Ignoring : " + file.toString());
                 } else {
                     log.debug("Adding file: " + file.toString());
                     files.add(file);

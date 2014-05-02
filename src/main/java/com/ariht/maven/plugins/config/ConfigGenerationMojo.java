@@ -64,9 +64,8 @@ public class ConfigGenerationMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         logConfigurationParameters();
         clearTargetDirectory();
-        final DirectoryReader directoryReader = new DirectoryReader(getLog(), pathSeparator);
         try {
-            processTemplatesAndGenerateConfig(directoryReader);
+            processTemplatesAndGenerateConfig();
         } catch (Exception e) {
             getLog().error("Error generating config: " + String.valueOf(e.getMessage()));
             throw new MojoFailureException(e.getMessage(), e);
@@ -76,11 +75,11 @@ public class ConfigGenerationMojo extends AbstractMojo {
     /**
      * Merge templates with filters to generate config, scripts anf property files.
      */
-    private void processTemplatesAndGenerateConfig(final DirectoryReader directoryReader) throws Exception {
+    private void processTemplatesAndGenerateConfig() throws Exception {
+        final DirectoryReader directoryReader = new DirectoryReader(getLog(), pathSeparator);
         final List<FileInfo> filters = directoryReader.readFiles(filtersBasePath, filtersToIgnore);
         final List<FileInfo> templates = directoryReader.readFiles(templatesBasePath, templatesToIgnore);
         for (final FileInfo filter : filters) {
-            getLog().info("");
             for (final FileInfo template : templates) {
                 generateConfig(template, filter, outputBasePath);
             }
@@ -176,12 +175,12 @@ public class ConfigGenerationMojo extends AbstractMojo {
             getLog().warn("File encoding has not been set, using platform encoding '" + encoding
                     + "', i.e. generated config is platform dependent!");
         } else if (logOutput) {
-            getLog().info("Using file encoding '" + encoding + "' while generating config.");
+            getLog().debug("Using file encoding '" + encoding + "' while generating config.");
         }
         if (logOutput) {
-            getLog().info("templatesBasePath : " + FilenameUtils.separatorsToSystem(templatesBasePath));
-            getLog().info("filtersBasePath   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
-            getLog().info("outputBasePath    : " + FilenameUtils.separatorsToSystem(outputBasePath));
+            getLog().debug("templatesBasePath : " + FilenameUtils.separatorsToSystem(templatesBasePath));
+            getLog().debug("filtersBasePath   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
+            getLog().debug("outputBasePath    : " + FilenameUtils.separatorsToSystem(outputBasePath));
         }
     }
 }

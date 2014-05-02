@@ -1,16 +1,11 @@
 **config-generation-maven-plugin**
 
-Generates config and scripts for multiple target environments using
-template placeholder substitution from values in multiple filter files.
+Generates config, properties, scripts and any other text resources from templates
+with ${placeholder} substitution to target multiple environments.
 
-*Dependency:*
-```
-<dependency>
-  <groupId>com.ariht</groupId>
-  <artifactId>config-generation-maven-plugin</artifactId>
-  <version>0.9.5</version>
-</dependency>
-```
+Attached to the generate-resources phase if configured with build, but can equally
+be run with different configuration in different profiles.
+
 *Example configuration:*
 ```
 <build>
@@ -32,12 +27,13 @@ template placeholder substitution from values in multiple filter files.
                 <encoding>${project.build.sourceEncoding}</encoding>
                 <outputBasePath>${basedir}/target/generated-config</outputBasePath>
 
+                <!-- Create a filter for each environment, sub-directories walked and paths kept consistent when output -->
                 <filtersBasePath>${basedir}/src/config/filters</filtersBasePath>
                 <filtersToIgnore>
-                    <ignore>${basedir}/src/config/filters/readme.txt</ignore>
-                    <ignore>${basedir}/src/config/filters/subdir</ignore>
+                    <ignore>${basedir}/src/config/filters/old_uat</ignore>
                 </filtersToIgnore>
 
+                <!-- One template for *all* environments, sub-directories walked and paths kept consistent when output -->
                 <templatesBasePath>${basedir}/src/config/templates</templatesBasePath>
                 <templatesToIgnore>
                     <ignore>${basedir}/src/config/templates/readme.txt</ignore>

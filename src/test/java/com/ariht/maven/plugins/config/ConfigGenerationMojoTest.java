@@ -45,7 +45,7 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.setLog(new TestsLogger());
         configGenerationMojo.logOutput = true;
         configGenerationMojo.pathSeparator = "/";
-        configGenerationMojo.filtersToIgnore = Lists.newArrayList(getAbsolutePath("filters/personal"));
+        configGenerationMojo.filtersToIgnore = Lists.newArrayList(getAbsolutePath("filters/personal/unit_test_foo.filter"));
         configGenerationMojo.templatesToIgnore = Lists.newLinkedList();
 
         configGenerationMojo.execute();

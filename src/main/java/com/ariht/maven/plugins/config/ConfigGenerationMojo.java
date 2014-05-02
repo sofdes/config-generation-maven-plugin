@@ -76,9 +76,10 @@ public class ConfigGenerationMojo extends AbstractMojo {
      * Merge templates with filters to generate config, scripts anf property files.
      */
     private void processTemplatesAndGenerateConfig() throws Exception {
-        final DirectoryReader directoryReader = new DirectoryReader(getLog(), pathSeparator);
+        final DirectoryReader directoryReader = new DirectoryReader(getLog());
         final List<FileInfo> filters = directoryReader.readFiles(filtersBasePath, filtersToIgnore);
         final List<FileInfo> templates = directoryReader.readFiles(templatesBasePath, templatesToIgnore);
+        logOutputPath();
         for (final FileInfo filter : filters) {
             for (final FileInfo template : templates) {
                 generateConfig(template, filter, outputBasePath);
@@ -97,15 +98,14 @@ public class ConfigGenerationMojo extends AbstractMojo {
         final String templateFilename = template.getFile().getName();
         final String outputFilename = FilenameUtils.separatorsToSystem(outputDirectory + templateFilename);
         if (logOutput) {
-            getLog().info("Generating : " + String.valueOf(outputFilename));
+            getLog().info("Creating : " + StringUtils.replace(outputFilename, outputBasePath, ""));
         } else if (getLog().isDebugEnabled()) {
-            getLog().debug("Generating : " + String.valueOf(outputFilename));
+            getLog().debug("Creating : " + String.valueOf(outputFilename));
         }
         getLog().debug("Applying filter : " + filter.toString() + " to template : " + template.toString());
         final String rawTemplate = FileUtils.readFileToString(template.getFile());
         final Properties properties = readFilterIntoProperties(filter);
         final String processedTemplate = StrSubstitutor.replace(rawTemplate, properties);
-
         if (StringUtils.isNotBlank(encoding)) {
             FileUtils.writeStringToFile(new File(outputFilename), processedTemplate, encoding);
         } else {
@@ -146,7 +146,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
      */
     private String getOutputPath(final FileInfo template, final FileInfo filter, final String outputBasePath) {
         final String outputPath = outputBasePath + pathSeparator
-                                + filter.getRelativeSubDirectory()
+                                + filter.getRelativeSubDirectory() + pathSeparator
                                 + filter.getNameWithoutExtension() + pathSeparator
                                 + template.getRelativeSubDirectory() + pathSeparator;
         return FilenameUtils.normalize(outputPath);
@@ -181,6 +181,15 @@ public class ConfigGenerationMojo extends AbstractMojo {
             getLog().debug("templatesBasePath : " + FilenameUtils.separatorsToSystem(templatesBasePath));
             getLog().debug("filtersBasePath   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
             getLog().debug("outputBasePath    : " + FilenameUtils.separatorsToSystem(outputBasePath));
+        }
+    }
+
+    private void logOutputPath() {
+        final String outputPathMessage = "Config generation to: " + outputBasePath;
+        if (logOutput) {
+            getLog().info(outputPathMessage);
+        } else if (getLog().isDebugEnabled()) {
+            getLog().debug(outputPathMessage);
         }
     }
 }

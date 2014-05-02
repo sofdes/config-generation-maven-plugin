@@ -39,13 +39,11 @@ import java.util.List;
 public class DirectoryReader {
 
     private final Log log;
-    private final String pathSeparator;
 
     private final List<File> EMPTY_FILE_LIST = Collections.unmodifiableList(new LinkedList<File>());
 
-    public DirectoryReader(final Log log, final String pathSeparator) {
+    public DirectoryReader(final Log log) {
         this.log = log;
-        this.pathSeparator = pathSeparator;
     }
 
     /**
@@ -67,7 +65,7 @@ public class DirectoryReader {
             final FileInfo fileInfo = new FileInfo(file);
             // Remove base directory to derive sub-directory
             final String canonicalFilePath = FilenameUtils.getFullPathNoEndSeparator(file.getCanonicalPath());
-            final String subDirectory = FilenameUtils.normalize(StringUtils.replaceOnce(canonicalFilePath, canonicalBaseDirectory, "") + pathSeparator);
+            final String subDirectory = FilenameUtils.normalize(StringUtils.replaceOnce(canonicalFilePath, canonicalBaseDirectory, ""));
             fileInfo.setRelativeSubDirectory(subDirectory);
             allFilesInfo.add(fileInfo);
         }

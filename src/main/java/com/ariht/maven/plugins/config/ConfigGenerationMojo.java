@@ -57,6 +57,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
     protected List<String> templatesToIgnore;
     @Parameter
     protected List<String> filtersToIgnore;
+
     /**
      * For properties substituted from every filter, create config based on each template.
      */

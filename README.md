@@ -18,7 +18,7 @@ template placeholder substitution from values in multiple filter files.
         <plugin>
             <groupId>com.ariht</groupId>
             <artifactId>config-generation-maven-plugin</artifactId>
-            <version>0.9.5</version>
+            <version>0.9.7</version>
             <executions>
                 <execution>
                     <goals>

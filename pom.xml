@@ -20,7 +20,7 @@
 
     <groupId>com.ariht</groupId>
     <artifactId>config-generation-maven-plugin</artifactId>
-    <version>0.9.7-SNAPSHOT</version>
+    <version>0.9.7</version>
     <name>config-generation-maven-plugin</name>
     <packaging>maven-plugin</packaging>
     <url>https://github.com/sofdes/config-generation-maven-plugin</url>
@@ -42,7 +42,7 @@
         <connection>scm:git:git@github.com:${github_username}/config-generation-maven-plugin.git</connection>
         <url>scm:git:git@github.com:${github_username}/config-generation-maven-plugin.git</url>
         <developerConnection>scm:git:git@github.com:${github_username}/config-generation-maven-plugin.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>config-generation-maven-plugin-0.9.7</tag>
     </scm>
 
     <developers>

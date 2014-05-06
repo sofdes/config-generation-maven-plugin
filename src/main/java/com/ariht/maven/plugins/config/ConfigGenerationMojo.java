@@ -38,7 +38,7 @@ import java.util.Properties;
  * Generates config and scripts for multiple target environments using
  * template placeholder substitution from values in multiple filter files.
  */
-@Mojo(name = "process", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, requiresDirectInvocation = false)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, requiresDirectInvocation = false)
 public class ConfigGenerationMojo extends AbstractMojo {
 
     @Parameter (defaultValue = "${project.build.sourceEncoding}")
@@ -57,6 +57,8 @@ public class ConfigGenerationMojo extends AbstractMojo {
     protected List<String> templatesToIgnore;
     @Parameter
     protected List<String> filtersToIgnore;
+    @Parameter (defaultValue = "filter.source")
+    protected String filterSourcePropertyName;
 
     /**
      * For properties substituted from every filter, create config based on each template.
@@ -121,9 +123,10 @@ public class ConfigGenerationMojo extends AbstractMojo {
     private Properties readFilterIntoProperties(final FileInfo filter) throws ConfigurationException {
         final PropertiesConfiguration config = new PropertiesConfiguration(filter.getFile());
         config.setEncoding(encoding);
-        // Add one more property:   filter.source=/relative/sub/dir/filenameNoExtension
-        final String filterSource = filter.getRelativeSubDirectory() + filter.getNameWithoutExtension();
-        config.setProperty("filter.source", FilenameUtils.separatorsToUnix(filterSource));
+        if (StringUtils.isNotBlank(filterSourcePropertyName)) {
+            final String filterSource = filter.getRelativeSubDirectory() + filter.getNameWithoutExtension();
+            config.setProperty(filterSourcePropertyName, FilenameUtils.separatorsToUnix(filterSource));
+        }
         return ConfigurationConverter.getProperties(config);
     }
 
@@ -178,9 +181,9 @@ public class ConfigGenerationMojo extends AbstractMojo {
             getLog().debug("Using file encoding '" + encoding + "' while generating config.");
         }
         if (logOutput) {
-            getLog().debug("templatesBasePath : " + FilenameUtils.separatorsToSystem(templatesBasePath));
-            getLog().debug("filtersBasePath   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
-            getLog().debug("outputBasePath    : " + FilenameUtils.separatorsToSystem(outputBasePath));
+            getLog().debug("Templates path : " + FilenameUtils.separatorsToSystem(templatesBasePath));
+            getLog().debug("Filters path   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
+            getLog().debug("Output path    : " + FilenameUtils.separatorsToSystem(outputBasePath));
         }
     }
 

@@ -51,14 +51,14 @@ public class ConfigGenerationMojo extends AbstractMojo {
     protected String outputBasePath;
     @Parameter (defaultValue = "true")
     protected boolean logOutput;
-    @Parameter (defaultValue = "/")
-    protected String pathSeparator;
     @Parameter
     protected List<String> templatesToIgnore;
     @Parameter
     protected List<String> filtersToIgnore;
     @Parameter (defaultValue = "filter.source")
     protected String filterSourcePropertyName;
+
+    private static final String PATH_SEPARATOR= "/";
 
     /**
      * For properties substituted from every filter, create config based on each template.
@@ -91,14 +91,13 @@ public class ConfigGenerationMojo extends AbstractMojo {
 
     /**
      * Read properties from filter file and substitute template place-holders.
-     * Write results to output path with same relative path as input filters.
      *
      * Typical output is to .../filter-dir/filter-name-no-extension/template-dir/template.name
      */
     private void generateConfig(final FileInfo template, final FileInfo filter, final String outputBasePath) throws IOException, ConfigurationException {
         final String outputDirectory = createOutputDirectory(template, filter, outputBasePath);
         final String templateFilename = template.getFile().getName();
-        final String outputFilename = FilenameUtils.separatorsToSystem(outputDirectory + templateFilename);
+        final String outputFilename = FilenameUtils.separatorsToUnix(outputDirectory + templateFilename);
         if (logOutput) {
             getLog().info("Creating : " + StringUtils.replace(outputFilename, outputBasePath, ""));
         } else if (getLog().isDebugEnabled()) {
@@ -107,6 +106,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
         getLog().debug("Applying filter : " + filter.toString() + " to template : " + template.toString());
         final String rawTemplate = FileUtils.readFileToString(template.getFile());
         final Properties properties = readFilterIntoProperties(filter);
+
         final String processedTemplate = StrSubstitutor.replace(rawTemplate, properties);
         if (StringUtils.isNotBlank(encoding)) {
             FileUtils.writeStringToFile(new File(outputFilename), processedTemplate, encoding);
@@ -144,15 +144,14 @@ public class ConfigGenerationMojo extends AbstractMojo {
     }
 
     /**
-     * Concatenate together the filter's directory with the template's - 'deploy' templates just go into the
-     * base path so only have the filter (i.e. the environment they are intended for).
+     * Concatenate filter directory with template directory
      */
     private String getOutputPath(final FileInfo template, final FileInfo filter, final String outputBasePath) {
-        final String outputPath = outputBasePath + pathSeparator
-                                + filter.getRelativeSubDirectory() + pathSeparator
-                                + filter.getNameWithoutExtension() + pathSeparator
-                                + template.getRelativeSubDirectory() + pathSeparator;
-        return FilenameUtils.normalize(outputPath);
+        final String outputPath = outputBasePath + PATH_SEPARATOR
+                                + filter.getRelativeSubDirectory() + PATH_SEPARATOR
+                                + filter.getNameWithoutExtension() + PATH_SEPARATOR
+                                + template.getRelativeSubDirectory() + PATH_SEPARATOR;
+        return FilenameUtils.separatorsToUnix(FilenameUtils.normalize(outputPath));
     }
 
     /**
@@ -181,18 +180,19 @@ public class ConfigGenerationMojo extends AbstractMojo {
             getLog().debug("Using file encoding '" + encoding + "' while generating config.");
         }
         if (logOutput) {
-            getLog().debug("Templates path : " + FilenameUtils.separatorsToSystem(templatesBasePath));
-            getLog().debug("Filters path   : " + FilenameUtils.separatorsToSystem(filtersBasePath));
-            getLog().debug("Output path    : " + FilenameUtils.separatorsToSystem(outputBasePath));
+            getLog().debug("Templates path : " + FilenameUtils.separatorsToUnix(templatesBasePath));
+            getLog().debug("Filters path   : " + FilenameUtils.separatorsToUnix(filtersBasePath));
+            getLog().debug("Output path    : " + FilenameUtils.separatorsToUnix(outputBasePath));
         }
     }
 
     private void logOutputPath() {
-        final String outputPathMessage = "Config generation to: " + outputBasePath;
+        final String outputPathMessage = "Config generation to: " + FilenameUtils.separatorsToUnix(outputBasePath);
         if (logOutput) {
             getLog().info(outputPathMessage);
         } else if (getLog().isDebugEnabled()) {
             getLog().debug(outputPathMessage);
         }
     }
+
 }

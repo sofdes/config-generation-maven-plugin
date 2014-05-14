@@ -6,9 +6,13 @@ pretty.print.xml=false
 
 orm.show.sql=false
 
-db.driver.name=HSQL
+db.driver.name=SQL_SERVER
 db.host=somehost
-db.port=1234
+db.port=5432
 db.name=live_db
 db.username=prod_db
 db.password=properpwd
+
+verify.service.url=https://123.12.3.123:8080/some-app/verify
+
+app.server.bin.dir=/home/jboss/app/6/bin

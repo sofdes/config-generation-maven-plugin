@@ -36,12 +36,12 @@ public class FileInfo {
         this.nameWithoutExtension = FilenameUtils.removeExtension(file.getName());
     }
 
-    public String getRelativeSubDirectory() {
-        return relativeSubDirectory;
-    }
-
     public void setRelativeSubDirectory(final String relativeSubDirectory) {
         this.relativeSubDirectory = relativeSubDirectory;
+    }
+
+    public String getRelativeSubDirectory() {
+        return relativeSubDirectory;
     }
 
     public String getNameWithoutExtension() {

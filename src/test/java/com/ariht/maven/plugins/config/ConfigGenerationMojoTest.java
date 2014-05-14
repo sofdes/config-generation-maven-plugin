@@ -44,8 +44,7 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.outputBasePath = getAbsolutePath("../generated-unit-tests-config");
         configGenerationMojo.setLog(new TestsLogger());
         configGenerationMojo.logOutput = true;
-        configGenerationMojo.pathSeparator = "/";
-        configGenerationMojo.filtersToIgnore = Lists.newArrayList(getAbsolutePath("filters/personal/unit_test_foo.filter"));
+        configGenerationMojo.filtersToIgnore = Lists.newArrayList(getAbsolutePath("filters/personal/README"));
         configGenerationMojo.templatesToIgnore = Lists.newLinkedList();
 
         configGenerationMojo.execute();

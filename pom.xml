@@ -100,6 +100,8 @@
                 <configuration>
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <autoDropAfterRelease>true</autoDropAfterRelease>
                 </configuration>
             </plugin>
             <plugin>
@@ -179,12 +181,12 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>3.2.1</version>    
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.2</version>
+            <version>3.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -33,7 +33,7 @@ public class ConfigGenerationMojoTest {
 
     /**
      * Using example inputs in the src/test/resources directory show how the plugin
-     * processes each filter into templates.
+     * combines each template and filter.
      */
     @Test
     public void testReadingDirectory() throws MojoExecutionException, MojoFailureException, IOException {

@@ -22,8 +22,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import java.io.File;
 
 /**
- * Container to information about a file so that the processors can input and output
- * relative paths and filenames easily as they've already been determined and placed here.
+ * Container to information about a file so that the processor can access relative
+ * paths, filename (without extension) and the File instance with further processing.
  */
 public class FileInfo {
 
@@ -56,4 +56,5 @@ public class FileInfo {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
+
 }

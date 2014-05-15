@@ -49,10 +49,8 @@ public class DirectoryReader {
      * Read directory creating FileInfo for each file found, include sub-directories.
      */
     public List<FileInfo> readFiles(final String path, final List<String> filesAndDirectoriesToIgnore) throws IOException, InstantiationException, IllegalAccessException {
-        final List<File> filesToIgnore = processFilesToIgnore(filesAndDirectoriesToIgnore);
-
+        final List<File> filesToIgnore = convertStringsToFiles(filesAndDirectoriesToIgnore);
         log.debug("Scanning directory: " + path);
-
         final File directory = new File(path);
         final Collection<File> allFiles = getAllFiles(directory, filesToIgnore);
         if (allFiles.isEmpty()) {
@@ -114,9 +112,9 @@ public class DirectoryReader {
 
     /**
      * Directories and/or specific files you do not wish to include in config generation
-     * are processes from Strings into File instances.
+     * are converted from String to File instances.
      */
-    private List<File> processFilesToIgnore(final List<String> filesToIgnore) {
+    private List<File> convertStringsToFiles(final List<String> filesToIgnore) {
         if (filesToIgnore == null || filesToIgnore.isEmpty()) {
             return EMPTY_FILE_LIST;
         }
@@ -133,4 +131,5 @@ public class DirectoryReader {
         }
         return filesIgnored;
     }
+
 }

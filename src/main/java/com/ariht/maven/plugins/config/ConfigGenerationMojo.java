@@ -58,10 +58,14 @@ public class ConfigGenerationMojo extends AbstractMojo {
     @Parameter (defaultValue = "filter.source")
     protected String filterSourcePropertyName;
 
-    private static final String PATH_SEPARATOR= "/";
+    private final String PATH_SEPARATOR;
+
+    public ConfigGenerationMojo() {
+        PATH_SEPARATOR = "/";
+    }
 
     /**
-     * For properties substituted from every filter, create config based on each template.
+     * Clear target directory and write generate new config and scripts.
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
         logConfigurationParameters();
@@ -75,7 +79,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
     }
 
     /**
-     * Merge templates with filters to generate config, scripts anf property files.
+     * Merge templates with filters to generate config, scripts and property files.
      */
     private void processTemplatesAndGenerateConfig() throws Exception {
         final DirectoryReader directoryReader = new DirectoryReader(getLog());

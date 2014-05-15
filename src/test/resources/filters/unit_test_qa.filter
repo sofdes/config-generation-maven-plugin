@@ -13,6 +13,9 @@ db.name=qa_db
 db.username=qa_db
 db.password=qapwd
 
+db.admin.username=admin_qa_db
+db.admin.password=qaadminpwd
+
 verify.service.url=https://qa.myhost:8080/some-app/verify
 
 app.server.bin.dir=/home/jboss/app/wildfly/bin

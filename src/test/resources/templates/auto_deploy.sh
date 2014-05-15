@@ -15,8 +15,8 @@ CMD="cp $SCRIPT_NAME/properties/unit_test_oter_config.properties ${install.dir}/
 echo "$CMD"
 $CMD
 
-# Run liquibase changelog with properties file
-CMD="$SCRIPT_NAME/liquibase/update_db.sh ${install.dir}/liquibase/liquibase.properties"
+# Run liquibase changelog with properties file for the current environment
+CMD="${install.dir}/liquibase/update_db.sh $SCRIPT_NAME/liquibase/liquibase.properties"
 echo "$CMD"
 $CMD
 

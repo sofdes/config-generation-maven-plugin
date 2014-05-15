@@ -1,1 +1,2 @@
-# Perhaps this one will get ignored - check filters in unit test setup
+# Filter sub-directories can be used to bucket dev, qa, production
+# and personal environments (whatever you need).

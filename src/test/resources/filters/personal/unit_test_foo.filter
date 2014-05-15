@@ -13,6 +13,9 @@ db.name=foo_test_db
 db.username=foo
 db.password=pwd123
 
+db.admin.username=admin_foo
+db.admin.password=321pwd
+
 verify.service.url=http://localhost:8080/some-app/verify
 
 app.server.bin.dir=C:/users/bar/apps/tomcat/bin

@@ -13,6 +13,9 @@ db.name=dev_db
 db.username=test_dev_1
 db.password=pwd321
 
+db.admin.username=test_dev_admin
+db.admin.password=adminpwd
+
 verify.service.url=https://dev.myhost:8080/some-app/verify
 
 app.server.bin.dir=/home/jboss/app/wildfly/bin

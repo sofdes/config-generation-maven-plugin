@@ -11,7 +11,10 @@ db.host=somehost
 db.port=5432
 db.name=live_db
 db.username=prod_db
-db.password=properpwd
+db.password=n3bqd928sA2Isl1z
+
+db.admin.username=prod_db_admin
+db.admin.password=nKR48b4mqghnm3kds
 
 verify.service.url=https://123.12.3.123:8080/some-app/verify
 

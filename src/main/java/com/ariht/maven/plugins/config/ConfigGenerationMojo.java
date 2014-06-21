@@ -65,7 +65,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
     }
 
     /**
-     * Clear target directory and write generate new config and scripts.
+     * Clear target directory and create new scripts and config files.
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
         logConfigurationParameters();

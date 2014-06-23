@@ -46,6 +46,9 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.logOutput = true;
         configGenerationMojo.filtersToIgnore = Lists.newArrayList(getAbsolutePath("filters/personal/README"));
         configGenerationMojo.templatesToIgnore = Lists.newLinkedList();
+        configGenerationMojo.propertyPrefix = "${";
+        configGenerationMojo.propertySuffix = "}";
+        configGenerationMojo.failOnMissingProperty = true;
 
         configGenerationMojo.execute();
     }

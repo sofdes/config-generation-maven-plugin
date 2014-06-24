@@ -13,7 +13,7 @@ be run with different configuration in different profiles.
         <plugin>
             <groupId>com.ariht</groupId>
             <artifactId>config-generation-maven-plugin</artifactId>
-            <version>0.9.9</version>
+            <version>0.9.10</version>
             <executions>
                 <execution>
                     <goals>

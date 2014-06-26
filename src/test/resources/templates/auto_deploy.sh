@@ -11,11 +11,11 @@ CMD="cp $SCRIPT_NAME/properties/unit_test_db_connection.properties ${install.dir
 echo "$CMD"
 $CMD
 
-CMD="cp $SCRIPT_NAME/properties/unit_test_oter_config.properties ${install.dir}/unit_test_other_config.properties"
+CMD="cp $SCRIPT_NAME/properties/unit_test_other_config.properties ${install.dir}/unit_test_other_config.properties"
 echo "$CMD"
 $CMD
 
-# Run liquibase changelog with properties file for the current environment
+# Run Liquibase Changelog with properties file for the current environment
 CMD="${install.dir}/liquibase/update_db.sh $SCRIPT_NAME/liquibase/liquibase.properties"
 echo "$CMD"
 $CMD

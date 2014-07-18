@@ -75,11 +75,11 @@ public class ConfigGenerationMojo extends AbstractMojo {
 
     private static final String PATH_SEPARATOR = "/";
 
-    private static final String MISSING_PROPERTY_PREFIX = "MISSING_PROPERTY_START: ";
-    private static final String MISSING_PROPERTY_SUFFIX = " MISSING_PROPERTY_END";
-    private static final String MISSING_PROPERTY_PATTERN = "(?<=" + MISSING_PROPERTY_PREFIX + ").*?(?=" + MISSING_PROPERTY_SUFFIX + ")";
+    private static final String MISSING_PROPERTY_PREFIX = "<<<<<<< ";
+    private static final String MISSING_PROPERTY_SUFFIX = " >>>>>>>";
 
-    private static final Pattern pattern = Pattern.compile(MISSING_PROPERTY_PATTERN);
+    private static final String MISSING_PROPERTY_PATTERN = "(?<=" + MISSING_PROPERTY_PREFIX + ").*?(?=" + MISSING_PROPERTY_SUFFIX + ")";
+    private static final Pattern missingPropertyPattern = Pattern.compile(MISSING_PROPERTY_PATTERN);
 
     /**
      * Clear target directory and create new scripts and config files.
@@ -183,28 +183,25 @@ public class ConfigGenerationMojo extends AbstractMojo {
     private void checkForMissingProperties(final String filename,
                                            final String processedTemplate,
                                            final Map<String, Set<String>> missingPropertiesByFilename) throws MojoFailureException {
-        final Matcher matcher = pattern.matcher(processedTemplate);
-        Set<String> missingProperties = null;
+        final Matcher matcher = missingPropertyPattern.matcher(processedTemplate);
+        final Set<String> missingProperties = new LinkedHashSet<String>();
         while(matcher.find()) {
             final String propertyName = matcher.group();
-            if (StringUtils.isBlank(propertyName)) {
-                continue;
-            } else if (missingProperties == null) {
-                missingProperties = new LinkedHashSet<String>();
+            if (!StringUtils.isBlank(propertyName)) {
+                missingProperties.add(propertyName);
             }
-            missingProperties.add(propertyName);
         }
-
-        if (missingProperties != null) {
-            for (final String propertyName : missingProperties) {
-                Set<String> missingPropertiesFromMap = missingPropertiesByFilename.get(filename);
-                if (missingPropertiesFromMap == null) {
-                    missingPropertiesFromMap = new LinkedHashSet<String>();
-                    missingPropertiesByFilename.put(filename, missingPropertiesFromMap);
-                }
-                missingPropertiesFromMap.add(propertyName);
-                getLog().info(filename + " : " + propertyName);
+        if (missingProperties.isEmpty()) {
+            return;
+        }
+        for (final String propertyName : missingProperties) {
+            Set<String> missingPropertiesFromMap = missingPropertiesByFilename.get(filename);
+            if (missingPropertiesFromMap == null) {
+                missingPropertiesFromMap = new LinkedHashSet<String>();
+                missingPropertiesByFilename.put(filename, missingPropertiesFromMap);
             }
+            missingPropertiesFromMap.add(propertyName);
+            getLog().info(filename + " : " + propertyName);
         }
     }
 

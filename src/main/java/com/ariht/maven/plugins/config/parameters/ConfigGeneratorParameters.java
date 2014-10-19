@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class ConfigGeneratorParameters {
 
-    private String encoding; // e.g. UTF-8
+    private String encoding = "UTF-8";
     private String templatesBasePath; // e.g. /src/config/templates
     private String filtersBasePath; // e.g. /src/config/filters
     private String outputBasePath; // e.g. /target/generated-config

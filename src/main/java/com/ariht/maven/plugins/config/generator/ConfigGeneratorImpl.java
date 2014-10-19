@@ -217,7 +217,8 @@ public class ConfigGeneratorImpl {
      */
     private Properties readFilterIntoProperties(final FileInfo filter) throws ConfigurationException, IOException {
         final CompositeConfiguration composite = new CompositeConfiguration();
-        for (final File file : filter.getFiles()) {
+        final List<File> files = filter.getFiles();
+        for (final File file : files) {
             final PropertiesConfiguration config = new PropertiesConfiguration(file);
             config.setEncoding(configGeneratorParameters.getEncoding());
             composite.addConfiguration(config);

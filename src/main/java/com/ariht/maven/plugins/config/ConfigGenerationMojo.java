@@ -43,6 +43,8 @@ public class ConfigGenerationMojo extends AbstractMojo {
     protected String templatesBasePath;
     @Parameter (defaultValue = "${basedir}/src/config/filters")
     protected String filtersBasePath;
+    @Parameter
+    protected List<String> externalFilterBasePaths;
     @Parameter (defaultValue = "${basedir}/target/generated-config")
     protected String outputBasePath;
     @Parameter (defaultValue = "true")
@@ -72,6 +74,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
                                                                     .withEncoding(encoding)
                                                                     .withTemplatesBasePath(templatesBasePath)
                                                                     .withFiltersBasePath(filtersBasePath)
+                                                                    .withExternalFilterBasePaths(externalFilterBasePaths)
                                                                     .withOutputBasePath(outputBasePath)
                                                                     .isWithLogOutput(logOutput)
                                                                     .withTemplatesToIgnore(templatesToIgnore)

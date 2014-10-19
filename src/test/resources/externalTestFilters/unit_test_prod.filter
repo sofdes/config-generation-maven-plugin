@@ -2,9 +2,9 @@ deploy.script.dir=/ci/unpacked
 environment=prod
 install.dir=/etc/myapp
 
-# pretty.print.xml=false
+pretty.print.xml=true
 
-# orm.show.sql=false
+orm.show.sql=true
 
 db.driver.name=SQL_SERVER
 db.host=somehost

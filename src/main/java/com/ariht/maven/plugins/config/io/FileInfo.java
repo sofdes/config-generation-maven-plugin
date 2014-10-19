@@ -64,16 +64,16 @@ public class FileInfo {
         return file;
     }
 
-    public String getRelativeSubDirectoryAndFilename() {
-        return relativeSubDirectory + "/" + getName();
+    private String getRelativeSubDirectoryAndFilename(final File file) throws IOException {
+        return file.getCanonicalPath() + "/" + getName();
     }
 
     public String getAllSources() throws IOException {
         final List<String> allFileNames = new LinkedList<String>();
-        allFileNames.add(getRelativeSubDirectory());
+        allFileNames.add(FilenameUtils.separatorsToUnix(relativeSubDirectory + "/" + getName()));
         if (this.externalFiles != null) {
             for (final File f : externalFiles) {
-                allFileNames.add(f.getCanonicalPath() + "/" + f.getName());
+                allFileNames.add(FilenameUtils.separatorsToUnix(f.getCanonicalPath() + "/" + f.getName()));
             }
         }
         return "[" + Joiner.on(", ").join(allFileNames) + "]";
@@ -94,12 +94,12 @@ public class FileInfo {
         }
         externalFiles = new LinkedList<File>();
         for (final String basePath : externalBasePaths) {
-            final String fullCanonicalFilename = basePath + relativeSubDirectory + "/" + this.getName();
+            final String fullCanonicalFilename = FilenameUtils.separatorsToUnix(basePath + relativeSubDirectory + "/" + this.getName());
             log.debug("Searching for: [" + fullCanonicalFilename + "]");
             final File externalFile = new File(fullCanonicalFilename);
             if (externalFile.exists()) {
                 log.debug("Including external file: [" + fullCanonicalFilename + "]");
-                externalFiles.add(file);
+                externalFiles.add(externalFile);
             }
         }
     }

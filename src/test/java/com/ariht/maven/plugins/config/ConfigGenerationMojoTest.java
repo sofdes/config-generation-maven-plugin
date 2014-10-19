@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Not so much a unit test as an example showing filters and templates being processed together.
@@ -53,6 +55,10 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.failOnMissingProperty = true;
         configGenerationMojo.filterSourcePropertyName = "filter.source";
 
+        final List<String> externalFiltersBasePath = new LinkedList<String>();
+        final String externalTestFilters = getAbsolutePath("externalTestFilters");
+        externalFiltersBasePath.add(externalTestFilters);
+        configGenerationMojo.externalFilterBasePaths = externalFiltersBasePath;
         configGenerationMojo.execute();
     }
 

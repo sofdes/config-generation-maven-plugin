@@ -74,6 +74,14 @@ public class ConfigGeneratorParametersBuilder {
         return this;
     }
 
+    public ConfigGeneratorParametersBuilder withExternalFilterBasePaths(final List<String> externalFilters) {
+        if (externalFilters != null && !externalFilters.isEmpty() && log.isDebugEnabled()) {
+            log.debug("Will also search for properties filter data in : [" + Arrays.toString(externalFilters.toArray()) + "]");
+        }
+        configGeneratorParameters.setExternalFilterBasePaths(externalFilters);
+        return this;
+    }
+
     public ConfigGeneratorParametersBuilder withOutputBasePath(final String outputBasePath) {
         Preconditions.checkArgument(StringUtils.isNotBlank(outputBasePath));
         log.debug("With output base path: [" + outputBasePath + "]");

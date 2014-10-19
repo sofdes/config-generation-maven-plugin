@@ -2,6 +2,10 @@ deploy.script.dir=/ci/unpacked
 environment=dev
 install.dir=/home/users/dev1/apps/myapp
 
+pretty.print.xml=true
+
+orm.show.sql=true
+
 db.driver.name=SQL_SERVER
 db.host=somehost
 db.port=1234

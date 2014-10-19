@@ -1,3 +1,5 @@
+# From: ${filter.source}
+
 # Environment substitution can be used for Continuous Integration scripts
 SCRIPT_NAME=$(dirname $0)
 

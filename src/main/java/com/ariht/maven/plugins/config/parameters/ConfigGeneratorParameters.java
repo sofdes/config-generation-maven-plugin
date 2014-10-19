@@ -26,9 +26,18 @@ import java.util.List;
 public class ConfigGeneratorParameters {
 
     private String encoding = "UTF-8";
-    private String templatesBasePath; // e.g. /src/config/templates
-    private String filtersBasePath; // e.g. /src/config/filters
-    private String outputBasePath; // e.g. /target/generated-config
+    // e.g. /src/config/templates
+    private String templatesBasePath;
+
+    // e.g. /src/config/filters
+    private String filtersBasePath;
+    // For when you need common values across multiple modules
+    // Processing order is filtersBasePath then this collection (in order) - first value wins
+    // as per the rules in http://commons.apache.org/proper/commons-configuration/userguide/howto_compositeconfiguration.html#Composite_Configuration_Details
+    private List<String> externalFilterBasePaths;
+
+    // e.g. /target/generated-config
+    private String outputBasePath;
     private boolean logOutput = true;
     private List<String> templatesToIgnore;
     private List<String> filtersToIgnore;
@@ -61,6 +70,14 @@ public class ConfigGeneratorParameters {
 
     public void setFiltersBasePath(String filtersBasePath) {
         this.filtersBasePath = filtersBasePath;
+    }
+
+    public List<String> getExternalFilterBasePaths() {
+        return externalFilterBasePaths;
+    }
+
+    public void setExternalFilterBasePaths(List<String> externalFilterBasePaths) {
+        this.externalFilterBasePaths = externalFilterBasePaths;
     }
 
     public String getOutputBasePath() {

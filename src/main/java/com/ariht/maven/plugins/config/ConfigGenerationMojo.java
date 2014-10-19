@@ -19,9 +19,11 @@ package com.ariht.maven.plugins.config;
 import com.ariht.maven.plugins.config.generator.ConfigGeneratorImpl;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersBuilder;
+import com.google.common.base.Preconditions;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -58,12 +60,15 @@ public class ConfigGenerationMojo extends AbstractMojo {
     @Parameter (defaultValue = "true")
     protected boolean failOnMissingProperty;
 
+
     /**
      * Clear target io and create new scripts and config io.
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
+        final Log log = getLog();
+        Preconditions.checkNotNull(log);
 
-        final ConfigGeneratorParameters configGeneratorParameters = new ConfigGeneratorParametersBuilder(getLog())
+        final ConfigGeneratorParameters parameters = new ConfigGeneratorParametersBuilder(log)
                                                                     .withEncoding(encoding)
                                                                     .withTemplatesBasePath(templatesBasePath)
                                                                     .withFiltersBasePath(filtersBasePath)
@@ -71,16 +76,19 @@ public class ConfigGenerationMojo extends AbstractMojo {
                                                                     .isWithLogOutput(logOutput)
                                                                     .withTemplatesToIgnore(templatesToIgnore)
                                                                     .withFiltersToIgnore(filtersToIgnore)
+                                                                    .withFilterSourcePropertyName(filterSourcePropertyName)
                                                                     .withPropertyPrefix(propertyPrefix)
                                                                     .withPropertySuffix(propertySuffix)
                                                                     .isWithFailOnMissingProperty(failOnMissingProperty)
                                                                     .build();
-
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("configGeneratorParameters: [" + configGeneratorParameters.toString() + "]");
+        if (log.isDebugEnabled()) {
+            log.debug("configGeneratorParameters: [" + parameters.toString() + "]");
         }
 
-        final ConfigGeneratorImpl configGenerator = new ConfigGeneratorImpl(getLog(), configGeneratorParameters);
+        final ConfigGeneratorImpl configGenerator = new ConfigGeneratorImpl(log, parameters);
+        if (log.isDebugEnabled()) {
+
+        }
         configGenerator.processFiltersIntoTemplates();
 
     }

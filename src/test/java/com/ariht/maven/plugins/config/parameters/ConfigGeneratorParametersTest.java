@@ -29,10 +29,10 @@ import static org.junit.Assert.assertTrue;
 
 public class ConfigGeneratorParametersTest {
 
-    private static final String DEFAULT_ENCODING_UTF8 = "UTF-8";
-    private static final String FILTER_SOURCE_DEFAULT_PROPERTY_NAME = "filter.source";
-    private static final String DEFAULT_PROPERTY_PREFIX = "${";
-    private static final String DEFAULT_PROPERTY_SUFFIX = "}";
+    protected static final String DEFAULT_ENCODING_UTF8 = "UTF-8";
+    protected static final String FILTER_SOURCE_DEFAULT_PROPERTY_NAME = "filter.source";
+    protected static final String DEFAULT_PROPERTY_PREFIX = "${";
+    protected static final String DEFAULT_PROPERTY_SUFFIX = "}";
 
     private static final String DUMMY_TEST_ENCODING = "UTF-99";
 

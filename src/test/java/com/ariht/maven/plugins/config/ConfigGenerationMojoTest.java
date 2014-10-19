@@ -51,6 +51,7 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.propertyPrefix = "${";
         configGenerationMojo.propertySuffix = "}";
         configGenerationMojo.failOnMissingProperty = true;
+        configGenerationMojo.filterSourcePropertyName = "filter.source";
 
         configGenerationMojo.execute();
     }

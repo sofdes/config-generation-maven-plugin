@@ -48,6 +48,7 @@ public class ConfigGeneratorParametersBuilder {
     }
 
     public ConfigGeneratorParametersBuilder (final Log log) {
+        Preconditions.checkArgument(log != null);
         this.log = log;
         configGeneratorParameters = new ConfigGeneratorParameters();
     }

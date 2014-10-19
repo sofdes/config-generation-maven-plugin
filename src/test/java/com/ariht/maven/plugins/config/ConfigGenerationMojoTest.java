@@ -25,6 +25,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Not so much a unit test as an example showing filters and templates being processed together.
@@ -32,13 +35,14 @@ import java.net.URL;
 public class ConfigGenerationMojoTest {
 
     /**
-     * Using example inputs in the src/test/resources directory show how the plugin
+     * Using example inputs in the src/test/resources io show how the plugin
      * combines each template and filter.
      */
     @Test
     public void testReadingDirectory() throws MojoExecutionException, MojoFailureException, IOException {
         final ConfigGenerationMojo configGenerationMojo = new ConfigGenerationMojo();
 
+        configGenerationMojo.encoding = StandardCharsets.UTF_8.name();
         configGenerationMojo.templatesBasePath = getAbsolutePath("templates");
         configGenerationMojo.filtersBasePath = getAbsolutePath("filters");
         configGenerationMojo.outputBasePath = getAbsolutePath("../generated-unit-tests-config");
@@ -49,7 +53,12 @@ public class ConfigGenerationMojoTest {
         configGenerationMojo.propertyPrefix = "${";
         configGenerationMojo.propertySuffix = "}";
         configGenerationMojo.failOnMissingProperty = true;
+        configGenerationMojo.filterSourcePropertyName = "filter.source";
 
+        final List<String> externalFiltersBasePath = new LinkedList<String>();
+        final String externalTestFilters = getAbsolutePath("externalTestFilters");
+        externalFiltersBasePath.add(externalTestFilters);
+        configGenerationMojo.externalFilterBasePaths = externalFiltersBasePath;
         configGenerationMojo.execute();
     }
 

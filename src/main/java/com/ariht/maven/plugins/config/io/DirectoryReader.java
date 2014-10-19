@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ariht.maven.plugins.config;
+package com.ariht.maven.plugins.config.io;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -59,7 +59,7 @@ public class DirectoryReader {
         final List<FileInfo> allFilesInfo = new ArrayList<FileInfo>(allFiles.size());
         final String canonicalBaseDirectory = directory.getCanonicalPath();
         for (final File file : allFiles) {
-            final FileInfo fileInfo = new FileInfo(file);
+            final FileInfo fileInfo = new FileInfo(log, file);
             // Remove base directory to derive sub-directory
             final String canonicalFilePath = FilenameUtils.getFullPathNoEndSeparator(file.getCanonicalPath());
             final String subDirectory = FilenameUtils.normalize(StringUtils.replaceOnce(canonicalFilePath, canonicalBaseDirectory, ""));

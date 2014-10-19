@@ -16,10 +16,16 @@
 
 package com.ariht.maven.plugins.config.io;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.maven.plugin.logging.Log;
+
 import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Container to information about a file so that the processor can access relative
@@ -28,13 +34,14 @@ import java.io.File;
 public class FileInfo {
 
     private final File file;
-    private final String nameWithoutExtension;
-    private String relativeSubDirectory;
-    private String environment;
+    private final Log log;
 
-    public FileInfo(final File file) {
+    private String relativeSubDirectory;
+    private List<File> externalFiles;
+
+    public FileInfo(final Log log, final File file) {
         this.file = file;
-        this.nameWithoutExtension = FilenameUtils.removeExtension(file.getName());
+        this.log = log;
     }
 
     public void setRelativeSubDirectory(final String relativeSubDirectory) {
@@ -46,19 +53,55 @@ public class FileInfo {
     }
 
     public String getNameWithoutExtension() {
-        return nameWithoutExtension;
+        return FilenameUtils.removeExtension(file.getName());
+    }
+
+    public String getName() {
+        return file.getName();
     }
 
     public File getFile() {
         return file;
     }
 
-    public String getEnvironment() {
-        return environment;
+    public String getRelativeSubDirectoryAndFilename() {
+        return relativeSubDirectory + "/" + getName();
     }
 
-    public void setEnvironment(String environment) {
-        this.environment = environment;
+    public String getAllSources() throws IOException {
+        final List<String> allFileNames = new LinkedList<String>();
+        allFileNames.add(getRelativeSubDirectory());
+        if (this.externalFiles != null) {
+            for (final File f : externalFiles) {
+                allFileNames.add(f.getCanonicalPath() + "/" + f.getName());
+            }
+        }
+        return "[" + Joiner.on(", ").join(allFileNames) + "]";
+    }
+
+    public List<File> getFiles() {
+        final List<File> filesList = new LinkedList<File>();
+        filesList.add(file);
+        if (externalFiles != null && !externalFiles.isEmpty()) {
+            filesList.addAll(externalFiles);
+        }
+        return filesList;
+    }
+
+    public void lookForExternalFiles(final List<String> externalBasePaths) {
+        if (externalBasePaths == null || externalBasePaths.isEmpty()) {
+            return;
+        }
+        externalFiles = new LinkedList<File>();
+        for (final String basePath : externalBasePaths) {
+            final String fullCanonicalFilename = basePath + relativeSubDirectory + "/" + this.getName();
+            log.debug("Searching for: [" + fullCanonicalFilename + "]");
+            final File externalFile = new File(fullCanonicalFilename);
+            if (externalFile.exists()) {
+                log.debug("Including external file: [" + fullCanonicalFilename + "]");
+                externalFiles.add(file);
+            }
+        }
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -88,6 +89,9 @@ public class ConfigGeneratorImpl {
     private void processTemplatesAndGenerateConfig() throws Exception {
         final DirectoryReader directoryReader = new DirectoryReader(log);
         final List<FileInfo> filters = directoryReader.readFiles(configGeneratorParameters.getFiltersBasePath(), configGeneratorParameters.getFiltersToIgnore());
+        for (FileInfo fileInfo : filters) {
+            fileInfo.lookForExternalFiles(configGeneratorParameters.getExternalFilterBasePaths());
+        }
         final List<FileInfo> templates = directoryReader.readFiles(configGeneratorParameters.getTemplatesBasePath(), configGeneratorParameters.getTemplatesToIgnore());
         logOutputPath();
 
@@ -196,7 +200,7 @@ public class ConfigGeneratorImpl {
      * Compile list of every property in all filter io - used to provide dummy values
      * in missing properties identified in set difference check.
      */
-    private Set<String> getAllProperties(List<FileInfo> filters) throws ConfigurationException {
+    private Set<String> getAllProperties(List<FileInfo> filters) throws ConfigurationException, IOException {
         final Set<String> allProperties = new LinkedHashSet<String>();
         for (final FileInfo filter : filters) {
             final Properties properties = readFilterIntoProperties(filter);
@@ -211,14 +215,17 @@ public class ConfigGeneratorImpl {
      *
      * Uses Apache Commons Configuration to load filters.
      */
-    private Properties readFilterIntoProperties(final FileInfo filter) throws ConfigurationException {
-        final PropertiesConfiguration config = new PropertiesConfiguration(filter.getFile());
-        config.setEncoding(configGeneratorParameters.getEncoding());
-        if (StringUtils.isNotBlank(configGeneratorParameters.getFilterSourcePropertyName())) {
-            final String filterSource = filter.getRelativeSubDirectory() + filter.getNameWithoutExtension();
-            config.setProperty(configGeneratorParameters.getFilterSourcePropertyName(), FilenameUtils.separatorsToUnix(filterSource));
+    private Properties readFilterIntoProperties(final FileInfo filter) throws ConfigurationException, IOException {
+        final CompositeConfiguration composite = new CompositeConfiguration();
+        for (final File file : filter.getFiles()) {
+            final PropertiesConfiguration config = new PropertiesConfiguration(file);
+            config.setEncoding(configGeneratorParameters.getEncoding());
+            composite.addConfiguration(config);
         }
-        return ConfigurationConverter.getProperties(config);
+        if (StringUtils.isNotBlank(configGeneratorParameters.getFilterSourcePropertyName())) {
+            composite.setProperty(configGeneratorParameters.getFilterSourcePropertyName(), filter.getAllSources());
+        }
+        return ConfigurationConverter.getProperties(composite);
     }
 
     /**

@@ -33,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Reads io recursively to create collated file information containing relative
+ * Reads directory recursively to create collated file information containing relative
  * paths, name (without extension) and a reference to the {@link File} itself.
  */
 public class DirectoryReader {
@@ -46,7 +46,7 @@ public class DirectoryReader {
     }
 
     /**
-     * Read io creating FileInfo for each file found, include sub-directories.
+     * Read directory creating FileInfo for each file found, include sub-directories.
      */
     public List<FileInfo> readFiles(final String path, final List<String> filesAndDirectoriesToIgnore) throws IOException, InstantiationException, IllegalAccessException {
         final List<File> filesToIgnore = convertStringsToFiles(filesAndDirectoriesToIgnore);
@@ -59,7 +59,7 @@ public class DirectoryReader {
         final List<FileInfo> allFilesInfo = new ArrayList<FileInfo>(allFiles.size());
         final String canonicalBaseDirectory = directory.getCanonicalPath();
         for (final File file : allFiles) {
-            final FileInfo fileInfo = new FileInfo(file);
+            final FileInfo fileInfo = new FileInfo(log, file);
             // Remove base directory to derive sub-directory
             final String canonicalFilePath = FilenameUtils.getFullPathNoEndSeparator(file.getCanonicalPath());
             final String subDirectory = FilenameUtils.normalize(StringUtils.replaceOnce(canonicalFilePath, canonicalBaseDirectory, ""));

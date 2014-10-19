@@ -26,7 +26,7 @@ import java.io.IOException;
 public class DirectoryDeleter {
 
    /**
-    * Clear contents of config generation build target/output io ready for new io.
+    * Clear contents of config generation build target/output io ready for new directory.
     */
     public void clearTargetDirectory(final String outputBasePath, final Log logger) throws MojoFailureException {
         final File outputDir = new File(outputBasePath);

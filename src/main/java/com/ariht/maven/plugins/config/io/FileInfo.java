@@ -30,6 +30,7 @@ public class FileInfo {
     private final File file;
     private final String nameWithoutExtension;
     private String relativeSubDirectory;
+    private String environment;
 
     public FileInfo(final File file) {
         this.file = file;
@@ -50,6 +51,14 @@ public class FileInfo {
 
     public File getFile() {
         return file;
+    }
+
+    public String getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(String environment) {
+        this.environment = environment;
     }
 
     @Override

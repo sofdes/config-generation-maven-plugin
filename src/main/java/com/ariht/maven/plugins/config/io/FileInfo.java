@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ariht.maven.plugins.config;
+package com.ariht.maven.plugins.config.io;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;

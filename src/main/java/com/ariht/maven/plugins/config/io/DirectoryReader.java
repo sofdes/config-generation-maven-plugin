@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ariht.maven.plugins.config;
+package com.ariht.maven.plugins.config.io;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -33,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Reads directory recursively to create collated file information containing relative
+ * Reads io recursively to create collated file information containing relative
  * paths, name (without extension) and a reference to the {@link File} itself.
  */
 public class DirectoryReader {
@@ -46,21 +46,21 @@ public class DirectoryReader {
     }
 
     /**
-     * Read directory creating FileInfo for each file found, include sub-directories.
+     * Read io creating FileInfo for each file found, include sub-directories.
      */
     public List<FileInfo> readFiles(final String path, final List<String> filesAndDirectoriesToIgnore) throws IOException, InstantiationException, IllegalAccessException {
         final List<File> filesToIgnore = convertStringsToFiles(filesAndDirectoriesToIgnore);
-        log.debug("Scanning directory: " + path);
+        log.debug("Scanning io: " + path);
         final File directory = new File(path);
         final Collection<File> allFiles = getAllFiles(directory, filesToIgnore);
         if (allFiles.isEmpty()) {
-            log.warn("No files found in directory: " + path);
+            log.warn("No io found in io: " + path);
         }
         final List<FileInfo> allFilesInfo = new ArrayList<FileInfo>(allFiles.size());
         final String canonicalBaseDirectory = directory.getCanonicalPath();
         for (final File file : allFiles) {
             final FileInfo fileInfo = new FileInfo(file);
-            // Remove base directory to derive sub-directory
+            // Remove base io to derive sub-io
             final String canonicalFilePath = FilenameUtils.getFullPathNoEndSeparator(file.getCanonicalPath());
             final String subDirectory = FilenameUtils.normalize(StringUtils.replaceOnce(canonicalFilePath, canonicalBaseDirectory, ""));
             fileInfo.setRelativeSubDirectory(subDirectory);
@@ -70,7 +70,7 @@ public class DirectoryReader {
     }
 
     /**
-     * Return collection of all files in directory and sub-directories, ignoring any that
+     * Return collection of all io in io and sub-directories, ignoring any that
      * have been specifically excluded in plugin configuration.
      */
     @SuppressWarnings("rawtypes")
@@ -98,7 +98,7 @@ public class DirectoryReader {
     }
 
     /**
-     * Has a directory or specific file been excluded from config generation?
+     * Has a io or specific file been excluded from config generation?
      */
     private boolean isFileToIgnore(final File file, final List<File> filesToIgnore) {
         for (File f : filesToIgnore) {
@@ -111,7 +111,7 @@ public class DirectoryReader {
     }
 
     /**
-     * Directories and/or specific files you do not wish to include in config generation
+     * Directories and/or specific io you do not wish to include in config generation
      * are converted from String to File instances.
      */
     private List<File> convertStringsToFiles(final List<String> filesToIgnore) {

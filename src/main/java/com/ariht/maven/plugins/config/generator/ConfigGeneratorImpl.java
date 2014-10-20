@@ -56,13 +56,13 @@ public class  ConfigGeneratorImpl {
         Preconditions.checkNotNull(configGeneratorParameters);
         this.log = log;
         this.configGeneratorParameters = configGeneratorParameters;
+        new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logConfigurationParameters();
     }
 
     /**
      * Clear target directory and create new scripts and config files.
      */
     public void processFiltersIntoTemplates() throws MojoExecutionException, MojoFailureException {
-        new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logConfigurationParameters();
         new DirectoryDeleter(log).clearTargetDirectory(configGeneratorParameters);
         try {
             processTemplatesAndGenerateConfig();
@@ -79,7 +79,6 @@ public class  ConfigGeneratorImpl {
         final DirectoryReader directoryReader = new DirectoryReader(log);
         final List<FileInfo> filters = directoryReader.readFilters(configGeneratorParameters);
         final List<FileInfo> templates = directoryReader.readTemplates(configGeneratorParameters);
-        new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logOutputPath();
 
         // Get list of all properties in all filter io.
         final FilterPropertiesReader filterPropertiesReader = new FilterPropertiesReader(configGeneratorParameters);
@@ -102,18 +101,7 @@ public class  ConfigGeneratorImpl {
                 generateConfig(template, filter, configGeneratorParameters.getOutputBasePath(), strSubstitutor, missingPropertiesByFilename, missingPropertyFound);
             }
         }
-
-        if (!missingPropertiesByFilename.keySet().isEmpty()) {
-            final StringBuilder sb = new StringBuilder("Missing properties identified:\n");
-            for (String filename : missingPropertiesByFilename.keySet()) {
-                sb.append(filename).append(": ");
-                sb.append(StringUtils.join(missingPropertiesByFilename.get(filename), ", ")).append("\n");
-            }
-            log.warn(sb.toString());
-            if (configGeneratorParameters.isFailOnMissingProperty()) {
-                throw new MojoExecutionException(sb.toString());
-            }
-        }
+        logMissingProperties(missingPropertiesByFilename);
     }
 
     /**
@@ -184,5 +172,17 @@ public class  ConfigGeneratorImpl {
         }
     }
 
-
+    private void logMissingProperties(final Map<String, Set<String>> missingPropertiesByFilename) throws MojoExecutionException {
+        if (!missingPropertiesByFilename.keySet().isEmpty()) {
+            final StringBuilder sb = new StringBuilder("Missing properties identified:\n");
+            for (String filename : missingPropertiesByFilename.keySet()) {
+                sb.append(filename).append(": ");
+                sb.append(StringUtils.join(missingPropertiesByFilename.get(filename), ", ")).append("\n");
+            }
+            log.warn(sb.toString());
+            if (configGeneratorParameters.isFailOnMissingProperty()) {
+                throw new MojoExecutionException(sb.toString());
+            }
+        }
+    }
 }

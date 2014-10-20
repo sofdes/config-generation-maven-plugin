@@ -17,9 +17,7 @@
 package com.ariht.maven.plugins.config.io;
 
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import org.apache.commons.configuration.ConfigurationException;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -27,16 +25,17 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.plugin.logging.Log;
+
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * Reads directory recursively to create collated file information containing relative
@@ -48,21 +47,25 @@ public class DirectoryReader {
     private final List<File> EMPTY_FILE_LIST = Collections.unmodifiableList(new LinkedList<File>());
 
     public DirectoryReader(final Log log) {
+        Preconditions.checkArgument(log != null);
         this.log = log;
     }
 
     public List<FileInfo> readFilters(final ConfigGeneratorParameters configGeneratorParameters) throws IllegalAccessException, IOException, InstantiationException {
         final String path = configGeneratorParameters.getFiltersBasePath();
         final List<String> filesAndDirectoriesToIgnore = configGeneratorParameters.getFiltersToIgnore();
+        if (log.isDebugEnabled()) {
+            log.debug(MessageFormat.format("Reading filters from: {0}, ignoring: {1}", path, Arrays.toString(filesAndDirectoriesToIgnore.toArray())));
+        }
         final List<FileInfo> filters = readFiles(path, filesAndDirectoriesToIgnore);
+        if (log.isDebugEnabled()) {
+            log.debug(MessageFormat.format("Read filters: {0}", Arrays.toString(filters.toArray())));
+        }
         for (FileInfo fileInfo : filters) {
             fileInfo.lookForExternalFiles(configGeneratorParameters.getExternalFilterBasePaths());
         }
         return filters;
     }
-
-
-
 
     public List<FileInfo> readTemplates(final ConfigGeneratorParameters configGeneratorParameters) throws IllegalAccessException, IOException, InstantiationException {
         final String path = configGeneratorParameters.getTemplatesBasePath();

@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.ariht" level="INFO" additivity="false">
+    <logger name="com.ariht" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 

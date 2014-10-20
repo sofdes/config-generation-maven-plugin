@@ -17,6 +17,7 @@
 package com.ariht.maven.plugins.config.io;
 
 import com.ariht.maven.plugins.config.generator.Constants;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.logging.Log;
@@ -25,13 +26,14 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by David on 20/10/2014.
+ * Create the target directory to write config files for each environment to.
  */
 public class OutputDirectoryCreator {
 
     private final Log log;
 
     public OutputDirectoryCreator(final Log log) {
+        Preconditions.checkArgument(log != null);
         this.log = log;
     }
 

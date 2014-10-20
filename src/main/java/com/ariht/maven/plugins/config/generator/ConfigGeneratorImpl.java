@@ -45,7 +45,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class  ConfigGeneratorImpl {
+public class ConfigGeneratorImpl {
 
     private final Log log;
     private final ConfigGeneratorParameters configGeneratorParameters;

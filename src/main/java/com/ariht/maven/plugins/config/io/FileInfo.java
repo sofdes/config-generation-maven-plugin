@@ -17,6 +17,7 @@
 package com.ariht.maven.plugins.config.io;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -40,6 +41,8 @@ public class FileInfo {
     private List<File> externalFiles;
 
     public FileInfo(final Log log, final File file) {
+        Preconditions.checkArgument(file != null);
+        Preconditions.checkArgument(log != null);
         this.file = file;
         this.log = log;
     }

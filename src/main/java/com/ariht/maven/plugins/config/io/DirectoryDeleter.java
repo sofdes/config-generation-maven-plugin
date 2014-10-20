@@ -17,6 +17,7 @@
 package com.ariht.maven.plugins.config.io;
 
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -24,17 +25,21 @@ import org.apache.maven.plugin.logging.Log;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Deletes all files from the target output directory.
+ */
 public class DirectoryDeleter {
 
     private final Log log;
 
     public DirectoryDeleter(Log log) {
+        Preconditions.checkArgument(log != null);
         this.log = log;
     }
 
     /**
-    * Clear contents of config generation build target/output io ready for new directory.
-    */
+     * Clear contents of config generation build target/output io ready for new directory.
+     */
     public void clearTargetDirectory(final ConfigGeneratorParameters configGeneratorParameters) throws MojoFailureException {
         final File outputDir = new File(configGeneratorParameters.getOutputBasePath());
         if (outputDir.exists()) {

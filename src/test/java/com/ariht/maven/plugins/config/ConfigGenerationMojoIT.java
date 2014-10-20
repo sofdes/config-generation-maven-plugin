@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Not so much a unit test as an example showing filters and templates being processed together.
  */
-public class ConfigGenerationMojoTest {
+public class ConfigGenerationMojoIT {
 
     /**
      * Using example inputs in the src/test/resources io show how the plugin

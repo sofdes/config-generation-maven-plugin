@@ -20,6 +20,7 @@ import com.ariht.maven.plugins.config.io.FileInfo;
 import com.ariht.maven.plugins.config.io.DirectoryDeleter;
 import com.ariht.maven.plugins.config.io.DirectoryReader;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
+import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -47,11 +48,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ConfigGeneratorImpl {
+public class  ConfigGeneratorImpl {
 
     private final Log log;
 
     private final ConfigGeneratorParameters configGeneratorParameters;
+
+    private Pattern missingPropertyPattern = Pattern.compile(Constants.MISSING_PROPERTY_PATTERN);
 
     public ConfigGeneratorImpl(final Log log, final ConfigGeneratorParameters configGeneratorParameters) {
         Preconditions.checkNotNull(log);
@@ -60,20 +63,11 @@ public class ConfigGeneratorImpl {
         this.configGeneratorParameters = configGeneratorParameters;
     }
 
-
-    private static final String PATH_SEPARATOR = "/";
-
-    private static final String MISSING_PROPERTY_PREFIX = "<<<<<<< ";
-    private static final String MISSING_PROPERTY_SUFFIX = " >>>>>>>";
-
-    private static final String MISSING_PROPERTY_PATTERN = "(?<=" + MISSING_PROPERTY_PREFIX + ").*?(?=" + MISSING_PROPERTY_SUFFIX + ")";
-    private static final Pattern missingPropertyPattern = Pattern.compile(MISSING_PROPERTY_PATTERN);
-
     /**
      * Clear target io and create new scripts and config io.
      */
     public void processFiltersIntoTemplates() throws MojoExecutionException, MojoFailureException {
-        logConfigurationParameters();
+        new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logConfigurationParameters();
         new DirectoryDeleter().clearTargetDirectory(configGeneratorParameters.getOutputBasePath(), log);
         try {
             processTemplatesAndGenerateConfig();
@@ -93,7 +87,7 @@ public class ConfigGeneratorImpl {
             fileInfo.lookForExternalFiles(configGeneratorParameters.getExternalFilterBasePaths());
         }
         final List<FileInfo> templates = directoryReader.readFiles(configGeneratorParameters.getTemplatesBasePath(), configGeneratorParameters.getTemplatesToIgnore());
-        logOutputPath();
+        new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logOutputPath();
 
         // Get list of all properties in all filter io.
         final Set<String> allProperties = getAllProperties(filters);
@@ -107,7 +101,7 @@ public class ConfigGeneratorImpl {
             // No point checking for missing properties if all were found in the filter file
             boolean missingPropertyFound = false;
             for (String missingProperty : Sets.difference(allProperties, valueMap.keySet()).immutableCopy()) {
-                valueMap.put(missingProperty, MISSING_PROPERTY_PREFIX + missingProperty + MISSING_PROPERTY_SUFFIX);
+                valueMap.put(missingProperty, Constants.MISSING_PROPERTY_PREFIX + missingProperty + Constants.MISSING_PROPERTY_SUFFIX);
                 missingPropertyFound = true;
             }
             final StrSubstitutor strSubstitutor = new StrSubstitutor(valueMap, configGeneratorParameters.getPropertyPrefix(), configGeneratorParameters.getPropertySuffix());
@@ -174,6 +168,7 @@ public class ConfigGeneratorImpl {
     private void checkForMissingProperties(final String filename,
                                            final String processedTemplate,
                                            final Map<String, Set<String>> missingPropertiesByFilename) throws MojoFailureException {
+
         final Matcher matcher = missingPropertyPattern.matcher(processedTemplate);
         final Set<String> missingProperties = new LinkedHashSet<String>();
         while(matcher.find()) {
@@ -246,34 +241,13 @@ public class ConfigGeneratorImpl {
      * Concatenate filter io with template io
      */
     private String getOutputPath(final FileInfo template, final FileInfo filter, final String outputBasePath) {
-        final String outputPath = outputBasePath + PATH_SEPARATOR
-                + filter.getRelativeSubDirectory() + PATH_SEPARATOR
-                + filter.getNameWithoutExtension() + PATH_SEPARATOR
-                + template.getRelativeSubDirectory() + PATH_SEPARATOR;
+        final String outputPath = outputBasePath + Constants.PATH_SEPARATOR
+                + filter.getRelativeSubDirectory() + Constants.PATH_SEPARATOR
+                + filter.getNameWithoutExtension() + Constants.PATH_SEPARATOR
+                + template.getRelativeSubDirectory() + Constants.PATH_SEPARATOR;
         return FilenameUtils.separatorsToUnix(FilenameUtils.normalize(outputPath));
     }
 
-    private void logConfigurationParameters() {
-        if (StringUtils.isBlank(configGeneratorParameters.getEncoding())) {
-            configGeneratorParameters.setEncoding(System.getProperty("file.encoding"));
-            log.warn("File encoding has not been set, using platform encoding '" + configGeneratorParameters.getEncoding()
-                    + "', i.e. generated config is platform dependent!");
-        } else if (configGeneratorParameters.isLogOutput()) {
-            log.debug("Using file encoding '" + configGeneratorParameters.getEncoding() + "' while generating config.");
-        }
-        if (configGeneratorParameters.isLogOutput()) {
-            log.debug("Templates path : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getTemplatesBasePath()));
-            log.debug("Filters path   : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getFiltersBasePath()));
-            log.debug("Output path    : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getOutputBasePath()));
-        }
-    }
 
-    private void logOutputPath() {
-        final String outputPathMessage = "Config generation to: " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getOutputBasePath());
-        if (configGeneratorParameters.isLogOutput()) {
-            log.info(outputPathMessage);
-        } else if (log.isDebugEnabled()) {
-            log.debug(outputPathMessage);
-        }
-    }
+
 }

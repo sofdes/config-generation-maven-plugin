@@ -90,7 +90,7 @@ public class ConfigGenerationMojo extends AbstractMojo {
 
         final ConfigGeneratorImpl configGenerator = new ConfigGeneratorImpl(log, parameters);
         if (log.isDebugEnabled()) {
-
+            log.debug("Running now");
         }
         configGenerator.processFiltersIntoTemplates();
 

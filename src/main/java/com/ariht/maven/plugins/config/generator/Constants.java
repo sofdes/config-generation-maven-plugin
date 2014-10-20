@@ -18,7 +18,7 @@ package com.ariht.maven.plugins.config.generator;
 
 public class Constants {
 
-    protected static final String PATH_SEPARATOR = "/";
+    public static final String PATH_SEPARATOR = "/";
     protected static final String MISSING_PROPERTY_PREFIX = "<<<<<<< ";
     protected static final String MISSING_PROPERTY_SUFFIX = " >>>>>>>";
     protected static final String MISSING_PROPERTY_PATTERN = "(?<=" + MISSING_PROPERTY_PREFIX + ").*?(?=" + MISSING_PROPERTY_SUFFIX + ")";

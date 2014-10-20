@@ -22,6 +22,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  * Not so much a unit test as an example showing filters and templates being processed together.
  */
-public class ConfigGenerationMojoIT {
+public class ConfigGenerationMojoTest {
 
     /**
      * Using example inputs in the src/test/resources io show how the plugin

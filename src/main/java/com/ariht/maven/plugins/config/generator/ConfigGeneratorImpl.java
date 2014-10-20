@@ -16,19 +16,16 @@
 
 package com.ariht.maven.plugins.config.generator;
 
-import com.ariht.maven.plugins.config.io.FileInfo;
 import com.ariht.maven.plugins.config.io.DirectoryDeleter;
 import com.ariht.maven.plugins.config.io.DirectoryReader;
+import com.ariht.maven.plugins.config.io.FileInfo;
+import com.ariht.maven.plugins.config.io.OutputDirectoryCreator;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersUtils;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,10 +48,8 @@ import java.util.regex.Pattern;
 public class  ConfigGeneratorImpl {
 
     private final Log log;
-
     private final ConfigGeneratorParameters configGeneratorParameters;
-
-    private Pattern missingPropertyPattern = Pattern.compile(Constants.MISSING_PROPERTY_PATTERN);
+    private final Pattern missingPropertyPattern = Pattern.compile(Constants.MISSING_PROPERTY_PATTERN);
 
     public ConfigGeneratorImpl(final Log log, final ConfigGeneratorParameters configGeneratorParameters) {
         Preconditions.checkNotNull(log);
@@ -64,11 +59,11 @@ public class  ConfigGeneratorImpl {
     }
 
     /**
-     * Clear target io and create new scripts and config io.
+     * Clear target directory and create new scripts and config files.
      */
     public void processFiltersIntoTemplates() throws MojoExecutionException, MojoFailureException {
         new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logConfigurationParameters();
-        new DirectoryDeleter().clearTargetDirectory(configGeneratorParameters.getOutputBasePath(), log);
+        new DirectoryDeleter(log).clearTargetDirectory(configGeneratorParameters);
         try {
             processTemplatesAndGenerateConfig();
         } catch (Exception e) {
@@ -82,20 +77,18 @@ public class  ConfigGeneratorImpl {
      */
     private void processTemplatesAndGenerateConfig() throws Exception {
         final DirectoryReader directoryReader = new DirectoryReader(log);
-        final List<FileInfo> filters = directoryReader.readFiles(configGeneratorParameters.getFiltersBasePath(), configGeneratorParameters.getFiltersToIgnore());
-        for (FileInfo fileInfo : filters) {
-            fileInfo.lookForExternalFiles(configGeneratorParameters.getExternalFilterBasePaths());
-        }
-        final List<FileInfo> templates = directoryReader.readFiles(configGeneratorParameters.getTemplatesBasePath(), configGeneratorParameters.getTemplatesToIgnore());
+        final List<FileInfo> filters = directoryReader.readFilters(configGeneratorParameters);
+        final List<FileInfo> templates = directoryReader.readTemplates(configGeneratorParameters);
         new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logOutputPath();
 
         // Get list of all properties in all filter io.
-        final Set<String> allProperties = getAllProperties(filters);
+        final FilterPropertiesReader filterPropertiesReader = new FilterPropertiesReader(configGeneratorParameters);
+        final Set<String> allProperties = filterPropertiesReader.getAllProperties(filters);
         // Collection stores missing properties by file so this can be logged once at the end.
         final Map<String, Set<String>> missingPropertiesByFilename = new LinkedHashMap<String, Set<String>>();
 
         for (final FileInfo filter : filters) {
-            final Properties properties = readFilterIntoProperties(filter);
+            final Properties properties = filterPropertiesReader.readFilterIntoProperties(filter);
             final LinkedHashMap<String, String> valueMap = Maps.newLinkedHashMap(Maps.fromProperties(properties));
 
             // No point checking for missing properties if all were found in the filter file
@@ -135,7 +128,7 @@ public class  ConfigGeneratorImpl {
                                 final Map<String, Set<String>> missingPropertiesByFilename,
                                 final boolean missingPropertyFound) throws IOException, ConfigurationException, MojoFailureException {
 
-        final String outputDirectory = createOutputDirectory(template, filter, outputBasePath);
+        final String outputDirectory = new OutputDirectoryCreator(log).createOutputDirectory(template, filter, outputBasePath);
         final String templateFilename = template.getFile().getName();
         final String outputFilename = FilenameUtils.separatorsToUnix(outputDirectory + templateFilename);
 
@@ -190,64 +183,6 @@ public class  ConfigGeneratorImpl {
             log.info(filename + " : " + propertyName);
         }
     }
-
-    /**
-     * Compile list of every property in all filter io - used to provide dummy values
-     * in missing properties identified in set difference check.
-     */
-    private Set<String> getAllProperties(List<FileInfo> filters) throws ConfigurationException, IOException {
-        final Set<String> allProperties = new LinkedHashSet<String>();
-        for (final FileInfo filter : filters) {
-            final Properties properties = readFilterIntoProperties(filter);
-            final ImmutableMap<String, String> valueMap = Maps.fromProperties(properties);
-            allProperties.addAll(valueMap.keySet());
-        }
-        return allProperties;
-    }
-
-    /**
-     * Filter io contain the properties we wish to substitute in templates.
-     *
-     * Uses Apache Commons Configuration to load filters.
-     */
-    private Properties readFilterIntoProperties(final FileInfo filter) throws ConfigurationException, IOException {
-        final CompositeConfiguration composite = new CompositeConfiguration();
-        final List<File> files = filter.getFiles();
-        for (final File file : files) {
-            final PropertiesConfiguration config = new PropertiesConfiguration(file);
-            config.setEncoding(configGeneratorParameters.getEncoding());
-            composite.addConfiguration(config);
-        }
-        if (StringUtils.isNotBlank(configGeneratorParameters.getFilterSourcePropertyName())) {
-            composite.setProperty(configGeneratorParameters.getFilterSourcePropertyName(), filter.getAllSources());
-        }
-        return ConfigurationConverter.getProperties(composite);
-    }
-
-    /**
-     * Prepare output io: base-path/filter-sub-dir/template-dir/template.name
-     */
-    private String createOutputDirectory(final FileInfo template, final FileInfo filter, final String outputBasePath) throws IOException {
-        final String outputDirectory = getOutputPath(template, filter, outputBasePath);
-        final File outputDir = new File(outputDirectory);
-        if (!outputDir.exists()) {
-            log.debug("Creating : " + outputDir);
-            FileUtils.forceMkdir(outputDir);
-        }
-        return FilenameUtils.normalize(outputDirectory);
-    }
-
-    /**
-     * Concatenate filter io with template io
-     */
-    private String getOutputPath(final FileInfo template, final FileInfo filter, final String outputBasePath) {
-        final String outputPath = outputBasePath + Constants.PATH_SEPARATOR
-                + filter.getRelativeSubDirectory() + Constants.PATH_SEPARATOR
-                + filter.getNameWithoutExtension() + Constants.PATH_SEPARATOR
-                + template.getRelativeSubDirectory() + Constants.PATH_SEPARATOR;
-        return FilenameUtils.separatorsToUnix(FilenameUtils.normalize(outputPath));
-    }
-
 
 
 }

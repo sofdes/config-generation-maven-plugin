@@ -6,13 +6,6 @@ pretty.print.xml=true
 
 orm.show.sql=true
 
-db.driver.name=POSTGRESQL
-db.host=somehost
-db.port=1234
-db.name=bar_test_db
-db.username=bar
-db.password=pwd123
-
 db.admin.username=admin_bar
 db.admin.password=321pwd
 

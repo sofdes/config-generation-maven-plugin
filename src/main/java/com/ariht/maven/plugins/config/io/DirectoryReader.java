@@ -16,6 +16,10 @@
 
 package com.ariht.maven.plugins.config.io;
 
+import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -31,6 +35,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Reads directory recursively to create collated file information containing relative
@@ -45,10 +51,29 @@ public class DirectoryReader {
         this.log = log;
     }
 
+    public List<FileInfo> readFilters(final ConfigGeneratorParameters configGeneratorParameters) throws IllegalAccessException, IOException, InstantiationException {
+        final String path = configGeneratorParameters.getFiltersBasePath();
+        final List<String> filesAndDirectoriesToIgnore = configGeneratorParameters.getFiltersToIgnore();
+        final List<FileInfo> filters = readFiles(path, filesAndDirectoriesToIgnore);
+        for (FileInfo fileInfo : filters) {
+            fileInfo.lookForExternalFiles(configGeneratorParameters.getExternalFilterBasePaths());
+        }
+        return filters;
+    }
+
+
+
+
+    public List<FileInfo> readTemplates(final ConfigGeneratorParameters configGeneratorParameters) throws IllegalAccessException, IOException, InstantiationException {
+        final String path = configGeneratorParameters.getTemplatesBasePath();
+        final List<String> filesAndDirectoriesToIgnore = configGeneratorParameters.getTemplatesToIgnore();
+        return readFiles(path, filesAndDirectoriesToIgnore);
+    }
+
     /**
      * Read directory creating FileInfo for each file found, include sub-directories.
      */
-    public List<FileInfo> readFiles(final String path, final List<String> filesAndDirectoriesToIgnore) throws IOException, InstantiationException, IllegalAccessException {
+    private List<FileInfo> readFiles(final String path, final List<String> filesAndDirectoriesToIgnore) throws IOException, InstantiationException, IllegalAccessException {
         final List<File> filesToIgnore = convertStringsToFiles(filesAndDirectoriesToIgnore);
         log.debug("Scanning directory: " + path);
         final File directory = new File(path);

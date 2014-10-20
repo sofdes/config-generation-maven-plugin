@@ -14,4 +14,4 @@ db.admin.password=adminpwd
 
 verify.service.url=https://dev.myhost:8080/some-app/verify
 
-app.server.bin.dir=/home/jboss/app/wildfly/bin
+# app.server.bin.dir=/home/jboss/app/wildfly/bin

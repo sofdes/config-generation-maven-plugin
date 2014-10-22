@@ -49,7 +49,11 @@ public class ConfigGeneratorImpl {
 
     private final Log log;
     private final ConfigGeneratorParameters configGeneratorParameters;
-    private final Pattern missingPropertyPattern = Pattern.compile(Constants.MISSING_PROPERTY_PATTERN);
+    private final Pattern missingPropertyPattern = Pattern.compile(MISSING_PROPERTY_PATTERN);
+
+    protected static final String MISSING_PROPERTY_PREFIX = "<<<<<<< ";
+    protected static final String MISSING_PROPERTY_SUFFIX = " >>>>>>>";
+    protected static final String MISSING_PROPERTY_PATTERN = "(?<=" + MISSING_PROPERTY_PREFIX + ").*?(?=" + MISSING_PROPERTY_SUFFIX + ")";
 
     public ConfigGeneratorImpl(final Log log, final ConfigGeneratorParameters configGeneratorParameters) {
         Preconditions.checkNotNull(log);
@@ -93,7 +97,7 @@ public class ConfigGeneratorImpl {
             // No point checking for missing properties if all were found in the filter file
             boolean missingPropertyFound = false;
             for (String missingProperty : Sets.difference(allProperties, valueMap.keySet()).immutableCopy()) {
-                valueMap.put(missingProperty, Constants.MISSING_PROPERTY_PREFIX + missingProperty + Constants.MISSING_PROPERTY_SUFFIX);
+                valueMap.put(missingProperty, MISSING_PROPERTY_PREFIX + missingProperty + MISSING_PROPERTY_SUFFIX);
                 missingPropertyFound = true;
             }
             final StrSubstitutor strSubstitutor = new StrSubstitutor(valueMap, configGeneratorParameters.getPropertyPrefix(), configGeneratorParameters.getPropertySuffix());

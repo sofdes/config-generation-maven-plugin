@@ -16,7 +16,6 @@
 
 package com.ariht.maven.plugins.config.io;
 
-import com.ariht.maven.plugins.config.generator.Constants;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -29,6 +28,8 @@ import java.io.IOException;
  * Create the target directory to write config files for each environment to.
  */
 public class OutputDirectoryCreator {
+
+    public static final String PATH_SEPARATOR = "/";
 
     private final Log log;
 
@@ -54,10 +55,10 @@ public class OutputDirectoryCreator {
      * Concatenate filter io with template io
      */
     private String getOutputPath(final FileInfo template, final FileInfo filter, final String outputBasePath) {
-        final String outputPath = outputBasePath + Constants.PATH_SEPARATOR
-                + filter.getRelativeSubDirectory() + Constants.PATH_SEPARATOR
-                + filter.getNameWithoutExtension() + Constants.PATH_SEPARATOR
-                + template.getRelativeSubDirectory() + Constants.PATH_SEPARATOR;
+        final String outputPath = outputBasePath + PATH_SEPARATOR
+                + filter.getRelativeSubDirectory() + PATH_SEPARATOR
+                + filter.getNameWithoutExtension() + PATH_SEPARATOR
+                + template.getRelativeSubDirectory() + PATH_SEPARATOR;
         return FilenameUtils.separatorsToUnix(FilenameUtils.normalize(outputPath));
     }
 }

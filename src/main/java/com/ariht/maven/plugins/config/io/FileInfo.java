@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,16 +34,16 @@ import java.util.List;
 public class FileInfo {
 
     private final File file;
-    private final Log log;
-
     private String relativeSubDirectory;
     private List<File> externalFiles;
 
-    public FileInfo(final Log log, final File file) {
+    public FileInfo(final File file) {
         Preconditions.checkArgument(file != null);
-        Preconditions.checkArgument(log != null);
         this.file = file;
-        this.log = log;
+    }
+
+    public void setExternalFiles(List<File> externalFiles) {
+        this.externalFiles = externalFiles;
     }
 
     public void setRelativeSubDirectory(final String relativeSubDirectory) {
@@ -67,10 +66,6 @@ public class FileInfo {
         return file;
     }
 
-    private String getRelativeSubDirectoryAndFilename(final File file) throws IOException {
-        return file.getCanonicalPath() + "/" + getName();
-    }
-
     public String getAllSources() throws IOException {
         final List<String> allFileNames = new LinkedList<String>();
         allFileNames.add(FilenameUtils.separatorsToUnix(relativeSubDirectory + "/" + getName()));
@@ -89,22 +84,6 @@ public class FileInfo {
             filesList.addAll(externalFiles);
         }
         return filesList;
-    }
-
-    public void lookForExternalFiles(final List<String> externalBasePaths) {
-        if (externalBasePaths == null || externalBasePaths.isEmpty()) {
-            return;
-        }
-        externalFiles = new LinkedList<File>();
-        for (final String basePath : externalBasePaths) {
-            final String fullCanonicalFilename = FilenameUtils.separatorsToUnix(basePath + relativeSubDirectory + "/" + this.getName());
-            log.debug("Searching for: [" + fullCanonicalFilename + "]");
-            final File externalFile = new File(fullCanonicalFilename);
-            if (externalFile.exists()) {
-                log.debug("Including external file: [" + fullCanonicalFilename + "]");
-                externalFiles.add(externalFile);
-            }
-        }
     }
 
     @Override

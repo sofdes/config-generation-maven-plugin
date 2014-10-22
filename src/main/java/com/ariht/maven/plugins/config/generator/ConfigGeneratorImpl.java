@@ -19,6 +19,7 @@ package com.ariht.maven.plugins.config.generator;
 import com.ariht.maven.plugins.config.io.DirectoryDeleter;
 import com.ariht.maven.plugins.config.io.DirectoryReader;
 import com.ariht.maven.plugins.config.io.FileInfo;
+import com.ariht.maven.plugins.config.io.FilterPropertiesReader;
 import com.ariht.maven.plugins.config.io.OutputDirectoryCreator;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersUtils;

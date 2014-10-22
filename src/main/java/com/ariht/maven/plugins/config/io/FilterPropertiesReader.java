@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ariht.maven.plugins.config.generator;
+package com.ariht.maven.plugins.config.io;
 
 import com.ariht.maven.plugins.config.io.FileInfo;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
@@ -76,6 +76,5 @@ public class FilterPropertiesReader {
         }
         return ConfigurationConverter.getProperties(composite);
     }
-
 
 }

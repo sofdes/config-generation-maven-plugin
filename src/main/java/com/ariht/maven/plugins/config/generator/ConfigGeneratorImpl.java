@@ -19,11 +19,10 @@ package com.ariht.maven.plugins.config.generator;
 import com.ariht.maven.plugins.config.io.DirectoryDeleter;
 import com.ariht.maven.plugins.config.io.DirectoryReader;
 import com.ariht.maven.plugins.config.io.FileInfo;
-import com.ariht.maven.plugins.config.io.FilterPropertiesReader;
+import com.ariht.maven.plugins.config.io.FilterPropertyPlaceholderNamesReader;
 import com.ariht.maven.plugins.config.io.OutputDirectoryCreator;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
-import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersUtils;
-import com.google.common.base.Preconditions;
+import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersLogger;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.configuration.ConfigurationException;
@@ -46,10 +45,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class ConfigGeneratorImpl {
 
     private final Log log;
-    private final ConfigGeneratorParameters configGeneratorParameters;
+    private final ConfigGeneratorParameters parameters;
     private final Pattern missingPropertyPattern = Pattern.compile(MISSING_PROPERTY_PATTERN);
 
     protected static final String MISSING_PROPERTY_PREFIX = "<<<<<<< ";
@@ -57,18 +58,16 @@ public class ConfigGeneratorImpl {
     protected static final String MISSING_PROPERTY_PATTERN = "(?<=" + MISSING_PROPERTY_PREFIX + ").*?(?=" + MISSING_PROPERTY_SUFFIX + ")";
 
     public ConfigGeneratorImpl(final Log log, final ConfigGeneratorParameters configGeneratorParameters) {
-        Preconditions.checkNotNull(log);
-        Preconditions.checkNotNull(configGeneratorParameters);
-        this.log = log;
-        this.configGeneratorParameters = configGeneratorParameters;
-        new ConfigGeneratorParametersUtils(log, configGeneratorParameters).logConfigurationParameters();
+        this.log = checkNotNull(log);
+        this.parameters = checkNotNull(configGeneratorParameters);
+        new ConfigGeneratorParametersLogger(log, configGeneratorParameters).logConfigurationParameters();
     }
 
     /**
      * Clear target directory and create new scripts and config files.
      */
     public void processFiltersIntoTemplates() throws MojoExecutionException, MojoFailureException {
-        new DirectoryDeleter(log).clearTargetDirectory(configGeneratorParameters);
+        clearTargetDirectory();
         try {
             processTemplatesAndGenerateConfig();
         } catch (Exception e) {
@@ -82,28 +81,28 @@ public class ConfigGeneratorImpl {
      */
     private void processTemplatesAndGenerateConfig() throws Exception {
         final DirectoryReader directoryReader = new DirectoryReader(log);
-        final List<FileInfo> filters = directoryReader.readFilters(configGeneratorParameters);
-        final List<FileInfo> templates = directoryReader.readTemplates(configGeneratorParameters);
+        final List<FileInfo> filters = directoryReader.readFilters(parameters);
+        final List<FileInfo> templates = directoryReader.readTemplates(parameters);
 
-        // Get list of all properties in all filter io.
-        final FilterPropertiesReader filterPropertiesReader = new FilterPropertiesReader(configGeneratorParameters);
-        final Set<String> allProperties = filterPropertiesReader.getAllProperties(filters);
+        final FilterPropertyPlaceholderNamesReader propertyNames = new FilterPropertyPlaceholderNamesReader(parameters, log);
+        propertyNames.identifyEveryFilterPropertyPlaceholderName(filters);
+
         // Collection stores missing properties by file so this can be logged once at the end.
         final Map<String, Set<String>> missingPropertiesByFilename = new LinkedHashMap<String, Set<String>>();
 
         for (final FileInfo filter : filters) {
-            final Properties properties = filterPropertiesReader.readFilterIntoProperties(filter);
+            final Properties properties = propertyNames.readFilterIntoProperties(filter);
             final LinkedHashMap<String, String> valueMap = Maps.newLinkedHashMap(Maps.fromProperties(properties));
 
             // No point checking for missing properties if all were found in the filter file
             boolean missingPropertyFound = false;
-            for (String missingProperty : Sets.difference(allProperties, valueMap.keySet()).immutableCopy()) {
+            for (String missingProperty : Sets.difference(propertyNames.getAllFilterPropertyNames(), valueMap.keySet()).immutableCopy()) {
                 valueMap.put(missingProperty, MISSING_PROPERTY_PREFIX + missingProperty + MISSING_PROPERTY_SUFFIX);
                 missingPropertyFound = true;
             }
-            final StrSubstitutor strSubstitutor = new StrSubstitutor(valueMap, configGeneratorParameters.getPropertyPrefix(), configGeneratorParameters.getPropertySuffix());
+            final StrSubstitutor strSubstitutor = new StrSubstitutor(valueMap, parameters.getPropertyPrefix(), parameters.getPropertySuffix());
             for (final FileInfo template : templates) {
-                generateConfig(template, filter, configGeneratorParameters.getOutputBasePath(), strSubstitutor, missingPropertiesByFilename, missingPropertyFound);
+                generateConfig(template, filter, parameters.getOutputBasePath(), strSubstitutor, missingPropertiesByFilename, missingPropertyFound);
             }
         }
         logMissingProperties(missingPropertiesByFilename);
@@ -125,7 +124,7 @@ public class ConfigGeneratorImpl {
         final String templateFilename = template.getFile().getName();
         final String outputFilename = FilenameUtils.separatorsToUnix(outputDirectory + templateFilename);
 
-        if (configGeneratorParameters.isLogOutput()) {
+        if (parameters.isLogOutput()) {
             log.info("Creating : " + StringUtils.replace(outputFilename, outputBasePath, ""));
         } else if (log.isDebugEnabled()) {
             log.debug("Creating : " + String.valueOf(outputFilename));
@@ -141,8 +140,8 @@ public class ConfigGeneratorImpl {
         }
 
         // Only write out the generated io if there were no errors or errors are specifically ignored
-        if (StringUtils.isNotBlank(configGeneratorParameters.getEncoding())) {
-            FileUtils.writeStringToFile(new File(outputFilename), processedTemplate, configGeneratorParameters.getEncoding());
+        if (StringUtils.isNotBlank(parameters.getEncoding())) {
+            FileUtils.writeStringToFile(new File(outputFilename), processedTemplate, parameters.getEncoding());
         } else {
             FileUtils.writeStringToFile(new File(outputFilename), processedTemplate);
         }
@@ -185,9 +184,14 @@ public class ConfigGeneratorImpl {
                 sb.append(StringUtils.join(missingPropertiesByFilename.get(filename), ", ")).append("\n");
             }
             log.warn(sb.toString());
-            if (configGeneratorParameters.isFailOnMissingProperty()) {
+            if (parameters.isFailOnMissingProperty()) {
                 throw new MojoExecutionException(sb.toString());
             }
         }
     }
+
+    private void clearTargetDirectory() throws MojoFailureException {
+        new DirectoryDeleter(log).clearTargetDirectory(parameters);
+    }
+
 }

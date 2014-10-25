@@ -19,7 +19,6 @@ package com.ariht.maven.plugins.config;
 import com.ariht.maven.plugins.config.generator.ConfigGeneratorImpl;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParametersBuilder;
-import com.google.common.base.Preconditions;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -62,38 +61,26 @@ public class ConfigGenerationMojo extends AbstractMojo {
     @Parameter (defaultValue = "true")
     protected boolean failOnMissingProperty;
 
-
-    /**
-     * Clear target io and create new scripts and config io.
-     */
     public void execute() throws MojoExecutionException, MojoFailureException {
         final Log log = getLog();
-        Preconditions.checkNotNull(log);
 
+        // Copy parameters in POM to object
         final ConfigGeneratorParameters parameters = new ConfigGeneratorParametersBuilder(log)
-                                                                    .withEncoding(encoding)
-                                                                    .withTemplatesBasePath(templatesBasePath)
-                                                                    .withFiltersBasePath(filtersBasePath)
-                                                                    .withExternalFilterBasePaths(externalFilterBasePaths)
-                                                                    .withOutputBasePath(outputBasePath)
-                                                                    .isWithLogOutput(logOutput)
-                                                                    .withTemplatesToIgnore(templatesToIgnore)
-                                                                    .withFiltersToIgnore(filtersToIgnore)
-                                                                    .withFilterSourcePropertyName(filterSourcePropertyName)
-                                                                    .withPropertyPrefix(propertyPrefix)
-                                                                    .withPropertySuffix(propertySuffix)
-                                                                    .isWithFailOnMissingProperty(failOnMissingProperty)
-                                                                    .build();
-        if (log.isDebugEnabled()) {
-            log.debug("configGeneratorParameters: [" + parameters.toString() + "]");
-        }
+                                                        .withEncoding(encoding)
+                                                        .withTemplatesBasePath(templatesBasePath)
+                                                        .withFiltersBasePath(filtersBasePath)
+                                                        .withExternalFilterBasePaths(externalFilterBasePaths)
+                                                        .withOutputBasePath(outputBasePath)
+                                                        .isWithLogOutput(logOutput)
+                                                        .withTemplatesToIgnore(templatesToIgnore)
+                                                        .withFiltersToIgnore(filtersToIgnore)
+                                                        .withFilterSourcePropertyName(filterSourcePropertyName)
+                                                        .withPropertyPrefix(propertyPrefix)
+                                                        .withPropertySuffix(propertySuffix)
+                                                        .isWithFailOnMissingProperty(failOnMissingProperty)
+                                                        .build();
 
-        final ConfigGeneratorImpl configGenerator = new ConfigGeneratorImpl(log, parameters);
-        if (log.isDebugEnabled()) {
-            log.debug("Running now");
-        }
-        configGenerator.processFiltersIntoTemplates();
-
+        new ConfigGeneratorImpl(log, parameters).processFiltersIntoTemplates();
     }
 
 }

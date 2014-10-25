@@ -18,6 +18,7 @@ package com.ariht.maven.plugins.config.io;
 
 import com.ariht.maven.plugins.config.parameters.ConfigGeneratorParameters;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -46,7 +47,7 @@ public class DirectoryReader {
     private final List<String> EMPTY_STRING_LIST = Collections.unmodifiableList(new LinkedList<String>());
 
     public DirectoryReader(final Log log) {
-        this.log = log;
+        this.log = Preconditions.checkNotNull(log);
     }
 
     /**

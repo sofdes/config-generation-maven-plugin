@@ -20,12 +20,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 
-public class ConfigGeneratorParametersUtils {
+/**
+ * For logging config parameters.
+ */
+public class ConfigGeneratorParametersLogger {
 
     private final Log log;
     private final ConfigGeneratorParameters configGeneratorParameters;
 
-    public ConfigGeneratorParametersUtils(Log log, ConfigGeneratorParameters configGeneratorParameters) {
+    public ConfigGeneratorParametersLogger(Log log, ConfigGeneratorParameters configGeneratorParameters) {
         this.log = log;
         this.configGeneratorParameters = configGeneratorParameters;
     }
@@ -36,14 +39,15 @@ public class ConfigGeneratorParametersUtils {
             log.warn("File encoding has not been set, using platform encoding '" + configGeneratorParameters.getEncoding()
                     + "', i.e. generated config is platform dependent!");
         } else if (configGeneratorParameters.isLogOutput()) {
-            log.debug("Using file encoding '" + configGeneratorParameters.getEncoding() + "' while generating config.");
+            log.info("Using file encoding '" + configGeneratorParameters.getEncoding() + "' while generating config.");
         }
         if (configGeneratorParameters.isLogOutput()) {
-            log.debug("Templates path : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getTemplatesBasePath()));
-            log.debug("Filters path   : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getFiltersBasePath()));
-            log.debug("Output path    : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getOutputBasePath()));
+            log.info("Templates path : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getTemplatesBasePath()));
+            log.info("Filters path   : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getFiltersBasePath()));
+            log.info("Output path    : " + FilenameUtils.separatorsToUnix(configGeneratorParameters.getOutputBasePath()));
+        } else if (log.isDebugEnabled()) {
+            log.debug("All config parameters: " + configGeneratorParameters.toString());
         }
-
         logOutputPath();
     }
 
